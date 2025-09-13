@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  jupyter-notebook:
+    build: .
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/app/workspace
+      - jupyter-data:/root/.jupyter
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    restart: unless-stopped
+
+  # Optional: Add a fast Binder-compatible server
+  jupyter-server:
+    image: jupyter/minimal-notebook:latest
+    ports:
+      - "8889:8888"
+    volumes:
+      - .:/home/jovyan/work
+    environment:
+      - JUPYTER_TOKEN=
+    command: start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''
+
+volumes:
+  jupyter-data:
