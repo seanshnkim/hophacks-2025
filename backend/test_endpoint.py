@@ -13,8 +13,8 @@ def main():
     
     # Request payload
     payload = {
-        "topic": "python variables",
-        "user_preferences": "I am a beginner"
+        "topic": "linear functions",
+        "user_preferences": "I want to see visual examples"
     }
     
     print(f"Testing endpoint with topic: '{payload['topic']}'")
@@ -24,24 +24,40 @@ def main():
     
     try:
         # Make the request
-        response = requests.post(url, json=payload, timeout=120)
+        response = requests.post(url, json=payload, timeout=300)
         
         if response.status_code == 200:
             data = response.json()
             
             print("✅ Request successful!")
-            print(f"Topic: {data['topic']}")
-            print(f"Learning module length: {len(data['learning_module'])} characters")
+            print(f"Main topic: {data['main_topic']}")
+            print(f"Components: {data['components']}")
+            print(f"Number of learning blocks: {len(data['learning_blocks'])}")
             print(f"Playground cells: {len(data['playground'].get('cells', []))}")
             
-            # Save playground as .ipynb file
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_file = f"playground_{timestamp}.ipynb"
+            # Display learning blocks
+            print("\n📚 Learning Blocks:")
+            for block in data['learning_blocks']:
+                print(f"  Block {block['id']}: {block['topic']}")
+                print(f"    Content: {len(block['text_content'])} characters")
+                if block['visualization_path']:
+                    print(f"    🎥 Visualization: {block['visualization_path']}")
+                else:
+                    print(f"    ℹ️  No visualization")
             
-            with open(output_file, 'w', encoding='utf-8') as f:
-                json.dump(data['playground'], f, indent=2, ensure_ascii=False)
+            # Test visualization endpoint if we have a visualization
+            for block in data['learning_blocks']:
+                if block['visualization_path']:
+                    viz_url = f"http://localhost:8000/visualization/{block['visualization_path']}"
+                    print(f"\n🎥 Testing visualization endpoint: {viz_url}")
+                    
+                    viz_response = requests.get(viz_url)
+                    if viz_response.status_code == 200:
+                        print(f"✅ Visualization endpoint working! ({len(viz_response.content)} bytes)")
+                    else:
+                        print(f"❌ Visualization endpoint failed: {viz_response.status_code}")
+                    break
             
-            print(f"💾 Playground saved as: {output_file}")
             print("🎉 Test completed successfully!")
             
         else:
