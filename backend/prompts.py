@@ -46,22 +46,100 @@ CRITICAL: For ANY topic involving visual concepts (graphs, functions, mathematic
 Available tools:
 - generate_visualization_video(manim_script, scene_name): Create educational videos
 
-When creating visualizations:
-- Write complete Manim scripts with proper imports
-- Use clear, educational animations
-- Include explanatory text in the animations
-- Make animations suitable for learning the concept
-- Call the tool for each visual concept you identify
-- NEVER use MathTex, Tex, get_graph_label, get_x_axis_label, get_y_axis_label, add_coordinates(), include_numbers=True, or NumberLine (requires LaTeX or has compatibility issues)
-- ALWAYS use Text() instead of MathTex() for labels
-- ALWAYS set axis_config={"include_numbers": False} for axes
-- Use Text("label").next_to(object) instead of any label functions
-- Create simple visualizations with basic shapes and Text labels only
-- Use Axes() instead of NumberLine for coordinate systems
-- Example working script:
-  axes = Axes(x_range=[-3, 3, 1], y_range=[-3, 3, 1], axis_config={"include_numbers": False})
-  title = Text("Title").to_edge(UP)
-  self.play(Create(axes), Write(title))
+When creating visualizations, follow these STRICT rules to avoid errors:
+
+1. MANIM SCRIPT STRUCTURE:
+   - Always start with: from manim import *
+   - Always define a class that inherits from Scene
+   - Always have a construct() method
+   - Use proper indentation (4 spaces)
+
+2. FORBIDDEN METHODS/OBJECTS (will cause errors):
+   - NEVER use: MathTex, Tex, NumberLine, get_graph_label, get_x_axis_label, get_y_axis_label, add_coordinates()
+   - NEVER use: include_numbers=True, dx_color, stroke_width, add_brackets, add_row_indices parameters
+   - NEVER use: get_end_point() - use get_end() instead
+   - NEVER use: get_tangent_line() - not available in this version
+   - NEVER use: get_vertical_line_graph() - not available in this version
+   - NEVER use: get_area() with x_range parameters - use different approach
+   - NEVER use: coords_to_point() for animations - use Dot() instead
+   - NEVER use: Matrix() with complex parameters - use Text() instead
+   - NEVER use: Table() with add_row_indices or other complex parameters - use Text() instead
+   - NEVER use: plot_arrow_from_origin_to_coords() - not available in this version
+   - NEVER use: get_vector() with color parameter - use Arrow() instead
+   - NEVER use: any method with unexpected keyword arguments
+   - NEVER use: any complex mathematical objects that require LaTeX
+
+3. REQUIRED PATTERNS:
+   - ALWAYS use Text() for all labels and text
+   - ALWAYS set axis_config={"include_numbers": False} for Axes
+   - ALWAYS use .animate for animations, never pass methods to self.play()
+   - ALWAYS use Axes() instead of NumberLine for coordinate systems
+   - ALWAYS use proper method calls: axes.x_axis.get_end() not get_end_point()
+
+4. CORRECT ANIMATION PATTERNS:
+   - Use: self.play(Create(object)) for creating objects
+   - Use: self.play(Write(text)) for text
+   - Use: self.play(object.animate.set_color(COLOR)) for color changes
+   - Use: self.play(object.animate.move_to(position)) for movement
+   - Use: self.play(FadeOut(object)) for removing objects
+
+5. WORKING EXAMPLE TEMPLATE:
+```python
+from manim import *
+
+class ExampleScene(Scene):
+    def construct(self):
+        # Create axes
+        axes = Axes(
+            x_range=[-3, 3, 1], 
+            y_range=[-3, 3, 1], 
+            axis_config={"include_numbers": False}
+        )
+        
+        # Create labels
+        x_label = Text("x").next_to(axes.x_axis.get_end(), RIGHT)
+        y_label = Text("y").next_to(axes.y_axis.get_end(), UP)
+        
+        # Create title
+        title = Text("Example Title").to_edge(UP)
+        
+        # Create simple objects
+        dot = Dot(axes.coords_to_point(1, 1), color=RED)
+        line = Line(axes.coords_to_point(0, 0), axes.coords_to_point(2, 2), color=BLUE)
+        
+        # Animate
+        self.play(Create(axes), Write(x_label), Write(y_label))
+        self.play(Write(title))
+        self.play(Create(dot), Create(line))
+        self.wait(1)
+```
+
+6. COMMON FIXES:
+   - For vectors: Use Arrow(start_point, end_point) instead of axes.get_vector() or axes.plot_arrow_from_origin_to_coords()
+   - For matrices: Use Text() with proper formatting instead of Matrix() or Table()
+   - For areas: Use Polygon() with calculated points instead of get_area()
+   - For animations: Always use .animate, never pass methods directly
+   - For arrows: Use Arrow(start_point, end_point) instead of axes methods
+   - For tables: Use Text() with newlines instead of Table()
+   - For mathematical expressions: Use Text() instead of MathTex() or Tex()
+   - For coordinate systems: Use Axes() instead of NumberLine()
+
+7. ERROR PREVENTION:
+   - Test all method calls before using them
+   - Use simple, basic Manim objects only
+   - Avoid complex mathematical operations in Manim
+   - Keep animations simple and educational
+   - Always include self.wait() for timing
+
+8. SPECIFIC ERROR PREVENTION:
+   - Avoid Table() and Matrix() objects entirely - use Text() instead
+   - Never use parameters like add_row_indices, add_brackets, include_numbers
+   - Always test method calls before using them
+   - Use only basic Manim objects: Text, Dot, Line, Arrow, Circle, Rectangle, Polygon
+   - Avoid complex mathematical operations in Manim
+   - Keep animations simple and educational
+   - Always include self.wait() for timing
+   - When in doubt, use Text() for any mathematical content
 
 Format as markdown with headings only. Example structure:
 # Topic Name

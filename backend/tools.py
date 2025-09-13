@@ -76,7 +76,7 @@ class VisualizationTools:
             # Run Manim command asynchronously
             cmd = [
                 "manim",
-                "-pql",  # Preview, quality low for faster rendering
+                "-ql",  # Quality low for faster rendering (removed -p to prevent auto-opening)
                 os.path.basename(script_path),
                 scene_name,
                 "-o", video_filename

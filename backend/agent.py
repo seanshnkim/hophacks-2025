@@ -73,7 +73,10 @@ class LearnerAgent:
         else:
             response = self.llm.invoke(llm_messages)
         
-        return response.content
+        # Ensure response is always a string
+        if isinstance(response.content, list):
+            return '\n'.join(str(item) for item in response.content)
+        return str(response.content)
 
 # Global agent instance
 learner_agent = LearnerAgent()
