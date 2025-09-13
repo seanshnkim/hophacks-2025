@@ -280,41 +280,7 @@
     </div>
     
     <div class="notebook-container">
-        <!-- Demo Cell 1 -->
-        <div class="cell code-cell" id="cell-1">
-            <div class="cell-header">
-                📝 Cell 1 - Welcome Demo (Python)
-            </div>
-            <div class="cell-content">
-                <textarea class="code-editor"># 🎉 Welcome to Fast Python Notebook!
-# This runs entirely in your browser with Pyodide
-
-import sys
-import datetime
-import platform
-
-print("🐍 Python Environment Ready!")
-print(f"Python version: {sys.version}")
-print(f"Platform: {platform.platform()}")
-print(f"Current time: {datetime.datetime.now()}")
-
-# Basic calculations
-x = [1, 2, 3, 4, 5]
-y = [i**2 for i in x]
-print(f"Squares: {y}")
-
-print("\n✅ Everything working! Add more cells below.")</textarea>
-                <div class="cell-controls">
-                    <select class="cell-type-selector" onchange="changeCellType('cell-1', this.value)">
-                        <option value="code" selected>Code</option>
-                        <option value="markdown">Markdown</option>
-                    </select>
-                    <button class="run-button" onclick="runCell('cell-1')">▶️ Run</button>
-                    <span style="margin-left: auto; font-size: 0.7rem; color: #6c757d;">Shift+Enter to run</span>
-                </div>
-                <div class="cell-output" id="output-1"></div>
-            </div>
-        </div>
+    <!-- Cells will be dynamically created here -->
     </div>
 
     <script>
@@ -853,6 +819,87 @@ print("\\n🎉 Packages ready! You can now use numpy and matplotlib.")`;
             cellCounter = 0;
         }
         
+        // Auto-import generated notebook from the project
+        async function autoImportGeneratedNotebook() {
+            try {
+                console.log('🚀 Auto-importing generated_notebook.ipynb...');
+                
+                // Fetch the generated notebook file
+                const response = await fetch('generated_notebook.ipynb');
+                if (!response.ok) {
+                    console.log('📝 No generated notebook found, starting with empty notebook');
+                    return;
+                }
+                
+                const notebookText = await response.text();
+                const notebook = JSON.parse(notebookText);
+                
+                // Validate notebook format
+                if (!notebook.cells || !Array.isArray(notebook.cells)) {
+                    console.warn('⚠️ Invalid notebook format in generated_notebook.ipynb');
+                    return;
+                }
+                
+                console.log(`📄 Found notebook with ${notebook.cells.length} cells`);
+                
+                // Clear existing cells (if any)
+                clearAllCells();
+                
+                // Import cells using the same logic as the file import
+                const container = document.querySelector('.notebook-container');
+                cellCounter = 0;
+                
+                notebook.cells.forEach((cellData, index) => {
+                    cellCounter++;
+                    
+                    const isMarkdown = cellData.cell_type === 'markdown';
+                    const source = Array.isArray(cellData.source) 
+                        ? cellData.source.join('') 
+                        : cellData.source || '';
+                    
+                    const cellDiv = document.createElement('div');
+                    cellDiv.className = isMarkdown ? 'cell markdown-cell' : 'cell code-cell';
+                    cellDiv.id = `cell-${cellCounter}`;
+                    
+                    const cellTypeLabel = isMarkdown ? 'Markdown' : 'Python Code';
+                    const cellIcon = isMarkdown ? '📄' : '📝';
+                    const runButtonText = isMarkdown ? '📝 Render' : '▶️ Run';
+                    
+                    cellDiv.innerHTML = `
+                        <div class="cell-header">
+                            ${cellIcon} Cell ${cellCounter} - ${cellTypeLabel} (Auto-imported)
+                        </div>
+                        <div class="cell-content">
+                            <textarea class="code-editor">${source}</textarea>
+                            <div class="cell-controls">
+                                <select class="cell-type-selector" onchange="changeCellType('cell-${cellCounter}', this.value)">
+                                    <option value="code" ${!isMarkdown ? 'selected' : ''}>Code</option>
+                                    <option value="markdown" ${isMarkdown ? 'selected' : ''}>Markdown</option>
+                                </select>
+                                <button class="run-button" onclick="runCell('cell-${cellCounter}')">${runButtonText}</button>
+                                <button onclick="deleteCell('cell-${cellCounter}')" style="background: #dc3545; font-size: 0.7rem; padding: 4px 8px;">🗑️</button>
+                                <span style="margin-left: auto; font-size: 0.7rem; color: #6c757d;">Cell ${cellCounter}</span>
+                            </div>
+                            <div class="cell-output" id="output-${cellCounter}"></div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(cellDiv);
+                });
+                
+                // Update status
+                const statusBar = document.getElementById('status-bar');
+                statusBar.className = 'status-bar';
+                statusBar.innerHTML = `✅ Auto-imported ${notebook.cells.length} cells from AI-generated notebook! 🤖`;
+                
+                console.log(`📁 Auto-imported notebook with ${notebook.cells.length} cells`);
+                
+            } catch (error) {
+                console.error('Auto-import failed:', error);
+                console.log('💡 You can manually import a notebook using the "📁 Import .ipynb" button');
+            }
+        }
+        
         // Keyboard shortcuts
         document.addEventListener('keydown', function(event) {
             // Shift+Enter to run current cell
@@ -870,8 +917,12 @@ print("\\n🎉 Packages ready! You can now use numpy and matplotlib.")`;
             }
         });
         
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', initPyodide);
+        // Initialize when page loads - first initialize Pyodide, then auto-import
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initPyodide();
+            // Give Pyodide a moment to fully initialize, then auto-import
+            setTimeout(autoImportGeneratedNotebook, 2000);
+        });
     </script>
 </body>
 </html>
