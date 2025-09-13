@@ -1,6 +1,7 @@
 import React from 'react';
 import LinearAlgebraForm from './components/LinearAlgebraForm';
 import './index.css';
+import './App.css';
 
 function App() {
   return (
