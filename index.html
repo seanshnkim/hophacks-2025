@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Python with Thebe + JupyterLite</title>
+    
+    <!-- Thebe CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/thebe@0.8.2/lib/index.css">
+    
+    <style>
+        /* Dark theme styling */
+        body {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            background-color: #2d2d30;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #3e3e42;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 1.5em;
+            color: #569cd6;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background-color: #0e639c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #1177bb;
+        }
+        
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .cell {
+            background-color: #252526;
+            border: 2px dashed #404040;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 15px;
+            position: relative;
+        }
+        
+        .cell pre {
+            background-color: #1e1e1e;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 0;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-family: inherit;
+        }
+        
+        .cell .thebe-run-button {
+            margin-top: 10px;
+        }
+        
+        /* Thebe output styling */
+        .thebe-output {
+            background-color: #0f0f0f;
+            border-left: 3px solid #569cd6;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .thebe-output pre {
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        /* Status indicators */
+        .thebe-status {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .loading {
+            color: #ffa500;
+        }
+        
+        .ready {
+            color: #4ec9b0;
+        }
+        
+        .error {
+            color: #f44747;
+        }
+    </style>
+</head>
+<body>
+    <!-- Thebe Configuration -->
+    <script type="text/x-thebe-config">
+    {
+        "useBinder": false,
+        "useJupyterLite": true,
+        "requestKernel": true,
+        "kernelOptions": {
+            "kernelName": "python"
+        },
+        "bootstrap": true
+    }
+    </script>
+
+    <div class="header">
+        <h1>🐍 Browser Python with Thebe + JupyterLite</h1>
+        <div class="button-group">
+            <button onclick="addCodeCell()">➕ Add Code Cell</button>
+            <button onclick="addMicropipDemo()">📦 Add micropip Demo</button>
+            <button onclick="runAll()">▶️ Run All</button>
+            <button onclick="deleteLastCell()">🗑️ Delete Last Cell</button>
+            <button onclick="downloadNotebook()" title="Download as .ipynb">💾 Download .ipynb</button>
+        </div>
+        <div id="status" class="thebe-status loading">Loading JupyterLite kernel...</div>
+    </div>
+
+    <div class="container">
+        <div id="cells" class="thebe">
+            <!-- Initial cell will be added by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Load Thebe-lite bundle BEFORE Thebe core -->
+    <script src="https://unpkg.com/@jupyterlite/pyodide-kernel-extension@0.0.6/lib/index.js"></script>
+    
+    <!-- Load Thebe core -->
+    <script src="https://unpkg.com/thebe@0.8.2/lib/index.js"></script>
+
+    <script>
+        let cellCounter = 0;
+        
+        // Initialize the app when page loads
+        window.addEventListener('load', function() {
+            // Add the initial demo cell
+            addCodeCell(`import sys, platform, numpy as np
+print("NumPy array:", np.arange(6))
+print("Python version:", sys.version.split()[0])
+print("Platform version:", platform.python_version())`);
+            
+            // Update status when kernel is ready
+            setTimeout(() => {
+                const statusEl = document.getElementById('status');
+                if (statusEl) {
+                    statusEl.textContent = 'Kernel ready! Click run buttons to execute code.';
+                    statusEl.className = 'thebe-status ready';
+                }
+            }, 3000);
+        });
+
+        /**
+         * Add a new executable code cell
+         */
+        function addCodeCell(source = '') {
+            cellCounter++;
+            const cellsContainer = document.getElementById('cells');
+            
+            // Create cell wrapper
+            const cellDiv = document.createElement('div');
+            cellDiv.className = 'cell';
+            cellDiv.id = `cell-${cellCounter}`;
+            
+            // Create the executable pre element
+            const preElement = document.createElement('pre');
+            preElement.setAttribute('data-executable', 'true');
+            preElement.setAttribute('data-language', 'python');
+            preElement.textContent = source || `# Cell ${cellCounter} - Enter your Python code here
+print(f"Hello from cell {cellCounter}!")`;
+            
+            cellDiv.appendChild(preElement);
+            cellsContainer.appendChild(cellDiv);
+            
+            // Re-bootstrap Thebe to make new cell executable
+            if (window.thebelab) {
+                window.thebelab.bootstrap();
+            }
+        }
+
+        /**
+         * Add a cell that demonstrates micropip package installation
+         */
+        function addMicropipDemo() {
+            const micropipCode = `import micropip
+print("Installing pydantic with micropip...")
+await micropip.install("pydantic==2.9.0")
+
+from pydantic import BaseModel
+
+class User(BaseModel):
+    id: int
+    name: str
+
+# Create and display a user instance
+user = User(id=1, name="Ada")
+print("Created user:", user)
+print("User dict:", user.dict())`;
+            
+            addCodeCell(micropipCode);
+        }
+
+        /**
+         * Run all executable cells in order
+         */
+        function runAll() {
+            const runButtons = document.querySelectorAll('.thebe-run-button');
+            runButtons.forEach((button, index) => {
+                setTimeout(() => {
+                    button.click();
+                }, index * 500); // Stagger execution by 500ms
+            });
+        }
+
+        /**
+         * Delete the last cell
+         */
+        function deleteLastCell() {
+            const cells = document.querySelectorAll('.cell');
+            if (cells.length > 0) {
+                const lastCell = cells[cells.length - 1];
+                lastCell.remove();
+                cellCounter = Math.max(0, cellCounter - 1);
+            }
+        }
+
+        /**
+         * Download current cells as a Jupyter notebook (.ipynb)
+         */
+        function downloadNotebook() {
+            const cells = document.querySelectorAll('.cell pre[data-executable]');
+            const notebookCells = [];
+            
+            cells.forEach((cell, index) => {
+                notebookCells.push({
+                    "cell_type": "code",
+                    "execution_count": null,
+                    "metadata": {},
+                    "outputs": [],
+                    "source": [
+                        cell.textContent + "\n"
+                    ]
+                });
+            });
+            
+            const notebook = {
+                "cells": notebookCells,
+                "metadata": {
+                    "kernelspec": {
+                        "display_name": "Python 3",
+                        "language": "python",
+                        "name": "python3"
+                    },
+                    "language_info": {
+                        "name": "python",
+                        "version": "3.10.0"
+                    }
+                },
+                "nbformat": 4,
+                "nbformat_minor": 4
+            };
+            
+            // Create and download the file
+            const blob = new Blob([JSON.stringify(notebook, null, 2)], {
+                type: 'application/json'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'browser-notebook.ipynb';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Handle Thebe events for better status updates
+        document.addEventListener('thebelab-ready', function() {
+            const statusEl = document.getElementById('status');
+            if (statusEl) {
+                statusEl.textContent = 'Kernel connected and ready!';
+                statusEl.className = 'thebe-status ready';
+            }
+        });
+
+        document.addEventListener('thebelab-error', function(event) {
+            const statusEl = document.getElementById('status');
+            if (statusEl) {
+                statusEl.textContent = 'Error: ' + (event.detail || 'Unknown error');
+                statusEl.className = 'thebe-status error';
+            }
+        });
+    </script>
+</body>
+</html>

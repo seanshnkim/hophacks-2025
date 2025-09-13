@@ -1,0 +1,29 @@
+{
+  "name": "browser-python-thebe",
+  "version": "1.0.0",
+  "description": "A minimal static web app that runs Python in the browser using Thebe + JupyterLite",
+  "main": "index.html",
+  "scripts": {
+    "dev": "http-server . -p 8000 -c-1 -o",
+    "start": "http-server . -p 8000",
+    "fetch-assets": "./scripts/fetch-thebe-assets.sh"
+  },
+  "keywords": [
+    "python",
+    "jupyter",
+    "thebe",
+    "pyodide",
+    "browser",
+    "static",
+    "notebook"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "."
+  }
+}
