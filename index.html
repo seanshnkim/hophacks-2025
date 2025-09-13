@@ -3,126 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Browser Python with Thebe + JupyterLite</title>
+    <title>Browser Python with Thebe</title>
     
     <!-- Thebe CSS -->
     <link rel="stylesheet" href="https://unpkg.com/thebe@0.8.2/lib/index.css">
     
     <style>
-        /* Dark theme styling */
+        /* Jupyter-like styling */
         body {
-            background-color: #1e1e1e;
-            color: #d4d4d4;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background-color: #ffffff;
+            color: #212529;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 0;
+            line-height: 1.5;
         }
         
         .header {
-            background-color: #2d2d30;
-            padding: 15px 20px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid #3e3e42;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .header h1 {
-            margin: 0 0 10px 0;
-            font-size: 1.5em;
-            color: #569cd6;
+            margin: 0 0 15px 0;
+            font-size: 2em;
+            font-weight: 300;
+            text-align: center;
         }
         
-        .button-group {
+        .header-controls {
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            gap: 15px;
             flex-wrap: wrap;
+            margin-bottom: 15px;
         }
         
-        button {
-            background-color: #0e639c;
+        .header-controls button {
+            background: rgba(255,255,255,0.2);
             color: white;
-            border: none;
+            border: 1px solid rgba(255,255,255,0.3);
             padding: 8px 16px;
-            border-radius: 4px;
+            border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
-            transition: background-color 0.2s;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
         
-        button:hover {
-            background-color: #1177bb;
-        }
-        
-        button:disabled {
-            background-color: #555;
-            cursor: not-allowed;
+        .header-controls button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
+            background: #fafafa;
+            min-height: calc(100vh - 200px);
+        }
+        
+        .notebook-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .status {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .status h3 {
+            margin: 0 0 10px 0;
+            font-weight: 500;
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .instructions h3 {
+            color: #007bff;
+            margin-top: 0;
+        }
+        
+        .instructions ol {
+            margin-bottom: 0;
+            color: #495057;
         }
         
         .cell {
-            background-color: #252526;
-            border: 2px dashed #404040;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            margin: 0;
+            background: white;
+            transition: all 0.2s ease;
+        }
+        
+        .cell:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .cell-header {
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 10px 15px;
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .cell-content {
             padding: 15px;
-            position: relative;
         }
         
         .cell pre {
-            background-color: #1e1e1e;
-            border: 1px solid #3e3e42;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
             border-radius: 4px;
-            padding: 12px;
+            padding: 15px;
             margin: 0;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            color: #495057;
             overflow-x: auto;
-            white-space: pre-wrap;
-            font-family: inherit;
         }
         
-        .cell .thebe-run-button {
-            margin-top: 10px;
+        /* Thebe button styling */
+        .thebe-run-button {
+            margin-top: 15px !important;
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+            border: none !important;
+            padding: 10px 20px !important;
+            color: white !important;
+            border-radius: 25px !important;
+            cursor: pointer !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 2px 8px rgba(40,167,69,0.3) !important;
         }
         
-        /* Thebe output styling */
-        .thebe-output {
-            background-color: #0f0f0f;
-            border-left: 3px solid #569cd6;
-            margin-top: 10px;
-            padding: 10px;
-            border-radius: 4px;
+        .thebe-run-button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(40,167,69,0.4) !important;
         }
         
-        .thebe-output pre {
-            background-color: transparent;
-            border: none;
-            padding: 0;
-            margin: 0;
+        /* Thebe activate button */
+        .thebelab-activate-button {
+            background: linear-gradient(135deg, #007bff, #6610f2) !important;
+            border: none !important;
+            padding: 12px 24px !important;
+            color: white !important;
+            border-radius: 25px !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 3px 12px rgba(0,123,255,0.3) !important;
         }
         
-        /* Status indicators */
-        .thebe-status {
-            margin-top: 10px;
-            font-size: 12px;
-            color: #888;
+        .thebelab-activate-button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(0,123,255,0.4) !important;
         }
         
-        .loading {
-            color: #ffa500;
+        /* Output styling */
+        .jp-OutputArea {
+            background: #f8f9fa !important;
+            border: 1px solid #e9ecef !important;
+            border-radius: 4px !important;
+            margin-top: 15px !important;
+            padding: 15px !important;
         }
         
-        .ready {
-            color: #4ec9b0;
+        .jp-OutputArea pre {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            color: #212529 !important;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace !important;
         }
         
-        .error {
-            color: #f44747;
+        /* Debug info */
+        #debug-info {
+            font-size: 11px !important;
+            color: rgba(255,255,255,0.8) !important;
+            margin-top: 10px !important;
+            font-family: monospace !important;
+        }
+        
+        /* Manual activate button */
+        #manual-activate {
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+            border: none !important;
+            padding: 12px 24px !important;
+            color: white !important;
+            border-radius: 25px !important;
+            cursor: pointer !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 3px 12px rgba(40,167,69,0.3) !important;
+        }
+        
+        #manual-activate:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(40,167,69,0.4) !important;
         }
     </style>
 </head>
@@ -130,140 +230,178 @@
     <!-- Thebe Configuration -->
     <script type="text/x-thebe-config">
     {
-        "useBinder": false,
-        "useJupyterLite": true,
-        "requestKernel": true,
-        "kernelOptions": {
-            "kernelName": "python"
+        "selector": "pre[data-executable]",
+        "binderOptions": {
+            "repo": "binder-examples/requirements"
         },
-        "bootstrap": true
+        "kernelOptions": {
+            "name": "python3"
+        },
+        "mountActivateWidget": true,
+        "mountStatusWidget": true
     }
     </script>
 
     <div class="header">
-        <h1>🐍 Browser Python with Thebe + JupyterLite</h1>
-        <div class="button-group">
-            <button onclick="addCodeCell()">➕ Add Code Cell</button>
-            <button onclick="addMicropipDemo()">📦 Add micropip Demo</button>
+        <h1>🐍 Browser Python Notebook</h1>
+        <div class="header-controls">
+            <button onclick="addCodeCell()">➕ Add Cell</button>
+            <button onclick="addMicropipDemo()">📦 Install Package Demo</button>
             <button onclick="runAll()">▶️ Run All</button>
-            <button onclick="deleteLastCell()">🗑️ Delete Last Cell</button>
-            <button onclick="downloadNotebook()" title="Download as .ipynb">💾 Download .ipynb</button>
+            <button onclick="downloadNotebook()">💾 Download .ipynb</button>
         </div>
-        <div id="status" class="thebe-status loading">Loading JupyterLite kernel...</div>
+        <div class="status">
+            <h3>✨ Interactive Python Environment</h3>
+            <div id="thebelab-activate" style="margin: 15px 0;">
+                <button id="manual-activate" onclick="activateThebe()">
+                    🚀 Activate Kernel
+                </button>
+            </div>
+            <div id="thebelab-status"></div>
+            <div id="debug-info"></div>
+        </div>
     </div>
 
     <div class="container">
-        <div id="cells" class="thebe">
-            <!-- Initial cell will be added by JavaScript -->
+        <div class="notebook-container">
+            <div class="instructions">
+                <h3>📚 Getting Started</h3>
+                <ol>
+                    <li><strong>Activate Kernel:</strong> Click the "🚀 Activate Kernel" button above</li>
+                    <li><strong>Wait for Connection:</strong> First-time setup takes 1-2 minutes</li>
+                    <li><strong>Run Code:</strong> Click the green "Run" button on any cell</li>
+                    <li><strong>Add Cells:</strong> Use "➕ Add Cell" to create new code cells</li>
+                </ol>
+            </div>
+
+            <div class="cell">
+                <div class="cell-header">
+                    📝 Cell 1 - Welcome & System Info
+                </div>
+                <div class="cell-content">
+                    <pre data-executable data-language="python">print("🎉 Welcome to Browser Python!")
+print("This is a Jupyter-like environment running in your browser")
+print()
+
+# Check Python version and environment
+import sys
+import platform
+
+print(f"🐍 Python version: {sys.version}")
+print(f"💻 Platform: {platform.platform()}")
+print(f"📍 Python executable: {sys.executable}")
+print()
+
+# Test basic functionality
+numbers = [1, 2, 3, 4, 5]
+squared = [x**2 for x in numbers]
+print(f"Original numbers: {numbers}")
+print(f"Squared numbers: {squared}")
+print()
+print("✅ Python is running successfully in your browser!")</pre>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Load Thebe-lite bundle BEFORE Thebe core -->
-    <script src="https://unpkg.com/@jupyterlite/pyodide-kernel-extension@0.0.6/lib/index.js"></script>
-    
-    <!-- Load Thebe core -->
+    <!-- Load Thebe -->
     <script src="https://unpkg.com/thebe@0.8.2/lib/index.js"></script>
 
     <script>
-        let cellCounter = 0;
+        console.log('✅ JavaScript is working');
+        console.log('Current URL:', window.location.href);
         
-        // Initialize the app when page loads
-        window.addEventListener('load', function() {
-            // Add the initial demo cell
-            addCodeCell(`import sys, platform, numpy as np
-print("NumPy array:", np.arange(6))
-print("Python version:", sys.version.split()[0])
-print("Platform version:", platform.python_version())`);
-            
-            // Update status when kernel is ready
-            setTimeout(() => {
-                const statusEl = document.getElementById('status');
-                if (statusEl) {
-                    statusEl.textContent = 'Kernel ready! Click run buttons to execute code.';
-                    statusEl.className = 'thebe-status ready';
-                }
-            }, 3000);
-        });
-
-        /**
-         * Add a new executable code cell
-         */
+        function updateDebugInfo(message) {
+            const debugEl = document.getElementById('debug-info');
+            if (debugEl) {
+                debugEl.innerHTML += '<br>' + message;
+            }
+            console.log(message);
+        }
+        
+        // Cell counter for dynamic cells
+        let cellCounter = 1;
+        
+        // Add a new code cell
         function addCodeCell(source = '') {
             cellCounter++;
-            const cellsContainer = document.getElementById('cells');
+            const container = document.querySelector('.notebook-container');
             
-            // Create cell wrapper
             const cellDiv = document.createElement('div');
             cellDiv.className = 'cell';
-            cellDiv.id = `cell-${cellCounter}`;
+            cellDiv.innerHTML = `
+                <div class="cell-header">
+                    📝 Cell ${cellCounter} - Custom Code
+                </div>
+                <div class="cell-content">
+                    <pre data-executable data-language="python">${source || `# Cell ${cellCounter} - Write your Python code here
+print(f"Hello from Cell ${cellCounter}!")
+
+# Try some Python operations
+import datetime
+print(f"Current time: {datetime.datetime.now()}")
+
+# Your code here...`}</pre>
+                </div>
+            `;
             
-            // Create the executable pre element
-            const preElement = document.createElement('pre');
-            preElement.setAttribute('data-executable', 'true');
-            preElement.setAttribute('data-language', 'python');
-            preElement.textContent = source || `# Cell ${cellCounter} - Enter your Python code here
-print(f"Hello from cell {cellCounter}!")`;
+            container.appendChild(cellDiv);
             
-            cellDiv.appendChild(preElement);
-            cellsContainer.appendChild(cellDiv);
-            
-            // Re-bootstrap Thebe to make new cell executable
+            // Re-bootstrap Thebe for new cell
             if (window.thebelab) {
                 window.thebelab.bootstrap();
             }
         }
-
-        /**
-         * Add a cell that demonstrates micropip package installation
-         */
+        
+        // Add micropip demo cell
         function addMicropipDemo() {
-            const micropipCode = `import micropip
-print("Installing pydantic with micropip...")
-await micropip.install("pydantic==2.9.0")
+            const micropipCode = `# Package Installation Demo
+# Note: This works in JupyterLite environments with micropip
 
-from pydantic import BaseModel
-
-class User(BaseModel):
-    id: int
-    name: str
-
-# Create and display a user instance
-user = User(id=1, name="Ada")
-print("Created user:", user)
-print("User dict:", user.dict())`;
+try:
+    # Try to install a lightweight package
+    import subprocess
+    import sys
+    
+    print("🔄 Installing 'requests' package...")
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'requests'])
+    
+    import requests
+    print(f"✅ Successfully installed requests v{requests.__version__}")
+    
+    # Test the package
+    print("🌐 Testing HTTP request...")
+    response = requests.get('https://httpbin.org/json')
+    print(f"Status: {response.status_code}")
+    print(f"Response: {response.json()}")
+    
+except Exception as e:
+    print(f"❌ Installation failed: {e}")
+    print("💡 Package installation works best with JupyterLite/Pyodide")`;
             
             addCodeCell(micropipCode);
         }
-
-        /**
-         * Run all executable cells in order
-         */
+        
+        // Run all cells
         function runAll() {
             const runButtons = document.querySelectorAll('.thebe-run-button');
+            if (runButtons.length === 0) {
+                alert('❌ No executable cells found. Make sure to activate the kernel first!');
+                return;
+            }
+            
+            updateDebugInfo(`🚀 Running ${runButtons.length} cells...`);
             runButtons.forEach((button, index) => {
                 setTimeout(() => {
                     button.click();
-                }, index * 500); // Stagger execution by 500ms
+                    updateDebugInfo(`▶️ Running cell ${index + 1}`);
+                }, index * 1500); // 1.5 second delay between cells
             });
         }
-
-        /**
-         * Delete the last cell
-         */
-        function deleteLastCell() {
-            const cells = document.querySelectorAll('.cell');
-            if (cells.length > 0) {
-                const lastCell = cells[cells.length - 1];
-                lastCell.remove();
-                cellCounter = Math.max(0, cellCounter - 1);
-            }
-        }
-
-        /**
-         * Download current cells as a Jupyter notebook (.ipynb)
-         */
+        
+        // Download notebook
         function downloadNotebook() {
-            const cells = document.querySelectorAll('.cell pre[data-executable]');
+            const cells = document.querySelectorAll('pre[data-executable]');
             const notebookCells = [];
             
             cells.forEach((cell, index) => {
@@ -272,9 +410,7 @@ print("User dict:", user.dict())`;
                     "execution_count": null,
                     "metadata": {},
                     "outputs": [],
-                    "source": [
-                        cell.textContent + "\n"
-                    ]
+                    "source": cell.textContent.split('\\n')
                 });
             });
             
@@ -288,42 +424,85 @@ print("User dict:", user.dict())`;
                     },
                     "language_info": {
                         "name": "python",
-                        "version": "3.10.0"
+                        "version": "3.8+"
                     }
                 },
                 "nbformat": 4,
                 "nbformat_minor": 4
             };
             
-            // Create and download the file
             const blob = new Blob([JSON.stringify(notebook, null, 2)], {
                 type: 'application/json'
             });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'browser-notebook.ipynb';
+            a.download = `browser-notebook-${new Date().toISOString().split('T')[0]}.ipynb`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            
+            updateDebugInfo(`💾 Downloaded notebook with ${notebookCells.length} cells`);
         }
-
-        // Handle Thebe events for better status updates
-        document.addEventListener('thebelab-ready', function() {
-            const statusEl = document.getElementById('status');
-            if (statusEl) {
-                statusEl.textContent = 'Kernel connected and ready!';
-                statusEl.className = 'thebe-status ready';
+        
+        // Manual activation function
+        function activateThebe() {
+            updateDebugInfo('🔄 Manually activating Thebe...');
+            
+            if (window.thebelab) {
+                updateDebugInfo('✅ Thebe library found');
+                try {
+                    window.thebelab.bootstrap().then(() => {
+                        updateDebugInfo('✅ Thebe bootstrapped successfully');
+                        document.getElementById('manual-activate').textContent = '✅ Activated!';
+                    }).catch(error => {
+                        updateDebugInfo('❌ Bootstrap error: ' + error.message);
+                    });
+                } catch (error) {
+                    updateDebugInfo('❌ Activation error: ' + error.message);
+                }
+            } else {
+                updateDebugInfo('❌ Thebe library not found');
             }
+        }
+        
+        // Wait for page to load, then check Thebe
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM loaded successfully');
+            updateDebugInfo('✅ DOM loaded');
+            
+            // Check if Thebe is available
+            setTimeout(() => {
+                if (window.thebelab) {
+                    updateDebugInfo('✅ Thebe library loaded');
+                    updateDebugInfo('🔄 Attempting auto-bootstrap...');
+                    
+                    // Try to activate automatically
+                    try {
+                        window.thebelab.bootstrap();
+                        updateDebugInfo('✅ Auto-bootstrap attempted');
+                    } catch (error) {
+                        updateDebugInfo('❌ Auto-bootstrap failed: ' + error.message);
+                    }
+                } else {
+                    updateDebugInfo('❌ Thebe library not loaded yet');
+                    updateDebugInfo('💡 Use manual activate button');
+                }
+            }, 1000);
+        });
+
+        // Listen for Thebe events
+        document.addEventListener('thebelab-ready', function(event) {
+            console.log('🎉 Thebe kernel is ready!');
+            updateDebugInfo('🎉 Kernel ready!');
+            document.querySelector('.status p').textContent = '🎉 Kernel ready! You can now run Python code.';
         });
 
         document.addEventListener('thebelab-error', function(event) {
-            const statusEl = document.getElementById('status');
-            if (statusEl) {
-                statusEl.textContent = 'Error: ' + (event.detail || 'Unknown error');
-                statusEl.className = 'thebe-status error';
-            }
+            console.error('❌ Thebe error:', event.detail);
+            updateDebugInfo('❌ Thebe error: ' + event.detail);
+            document.querySelector('.status p').textContent = '❌ Error: ' + event.detail;
         });
     </script>
 </body>
