@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "generated_at": "2025-09-14T01:57:59.098567",
+    "total_blocks": 5,
+    "version": "1.0"
+  },
+  "blocks": {
+    "1": {
+      "id": 1,
+      "title": "Python Basics: Variables, Data Types, and Operators",
+      "text_content": "## Python Basics: Variables, Data Types, and Operators\n\nVariables are containers for storing data values. Data types define the kind of value a variable can hold. Operators perform operations on variables and values.\n\n### Key Concepts\n\n*   **Variables:** Named storage locations (e.g., `age = 25`).\n*   **Data Types:**\n    *   **Integers (`int`):** Whole numbers (e.g., `10`, `-5`).\n    *   **Floats (`float`):** Numbers with decimals (e.g., `3.14`, `-0.5`).\n    *   **Strings (`str`):** Text enclosed in quotes (e.g., `\"hello\"`, `'Python'`).\n    *   **Booleans (`bool`):** True or False values (e.g., `True`, `False`).\n*   **Operators:**\n    *   **Arithmetic:** `+`, `-`, `*`, `/` (e.g., `5 + 3`).\n    *   **Comparison:** `==`, `!=`, `<`, `>` (e.g., `10 > 5`).\n    *   **Assignment:** `=` (e.g., `x = 7`).\n\n### Example\n\n```python\nname = \"Alice\"  # String variable\nscore = 95      # Integer variable\naverage = 88.5  # Float variable\nis_passed = True # Boolean variable\n\n# Arithmetic operation\ntotal_score = score + 5\n\n# Comparison operation\nis_high_score = total_score > 100\n```\n\n### Applications\n\n*   Storing user input\n*   Performing calculations\n*   Controlling program flow",
+      "visualization_path": null
+    },
+    "2": {
+      "id": 2,
+      "title": "Control Flow: Conditional Statements and Loops",
+      "text_content": "## Control Flow: Conditional Statements and Loops\n\nControl flow determines the order in which code is executed. Conditional statements and loops are fundamental tools for managing this flow.\n\n### Conditional Statements (if, else if, else)\n\n*   **Purpose:** Execute code blocks based on whether a condition is true or false.\n*   **`if`:** Executes code if the condition is true.\n*   **`else if`:** Checks another condition if the previous `if` or `else if` was false.\n*   **`else`:** Executes code if all preceding conditions are false.\n\n**Example:**\n\n```\nscore = 85\nif score >= 90:\n    print(\"A\")\nelif score >= 80:\n    print(\"B\") # This will print\nelse:\n    print(\"C\")\n```\n\n### Loops (for, while)\n\n*   **Purpose:** Repeat a block of code multiple times.\n*   **`for` loop:** Iterates over a sequence (e.g., list, string).\n*   **`while` loop:** Repeats as long as a condition is true.\n\n**Example (`for` loop):**\n\n```\nfruits = [\"apple\", \"banana\"]\nfor fruit in fruits:\n    print(fruit) # Prints \"apple\", then \"banana\"\n```\n\n**Applications:** Decision-making in programs, automating repetitive tasks, processing data.",
+      "visualization_path": null
+    },
+    "3": {
+      "id": 3,
+      "title": "Functions and Modularity",
+      "text_content": "## Functions and Modularity\n\nFunctions are reusable blocks of code that perform a specific task. Modularity is the practice of breaking down a program into smaller, independent functions.\n\n### Key Concepts\n\n*   **Encapsulation:** Bundling data and methods that operate on the data within a single unit.\n*   **Reusability:** Writing code once and using it multiple times.\n*   **Readability:** Making code easier to understand and maintain.\n*   **Testability:** Isolating functions for easier testing.\n\n### Example\n\n**Python:**\n\n```python\ndef greet(name):\n  \"\"\"This function greets the person passed in as a parameter.\"\"\"\n  print(f\"Hello, {name}!\")\n\ngreet(\"Alice\") # Output: Hello, Alice!\n```\n\n### Applications\n\n*   **Software Development:** Organizing complex codebases.\n*   **Data Analysis:** Creating reusable processing steps.\n*   **Web Development:** Building interactive components.",
+      "visualization_path": null
+    },
+    "4": {
+      "id": 4,
+      "title": "Data Structures: Lists, Tuples, Dictionaries, and Sets",
+      "text_content": "## Data Structures: Lists, Tuples, Dictionaries, and Sets\n\nThese are fundamental ways to store and organize data in programming.\n\n### Lists\n\n*   **Mutable** (can be changed after creation).\n*   Ordered and allow duplicate elements.\n*   Indexed, starting from 0.\n\n**Example:** `my_list = [1, \"apple\", 3.14]`\n\n### Tuples\n\n*   **Immutable** (cannot be changed after creation).\n*   Ordered and allow duplicate elements.\n*   Indexed, starting from 0.\n\n**Example:** `my_tuple = (1, \"banana\", 2.71)`\n\n### Dictionaries\n\n*   **Mutable**.\n*   Unordered collections of **key-value pairs**.\n*   Keys must be unique and immutable.\n\n**Example:** `my_dict = {\"name\": \"Alice\", \"age\": 30}`\n\n### Sets\n\n*   **Mutable**.\n*   Unordered collections of **unique** elements.\n*   Do not support indexing.\n\n**Example:** `my_set = {1, 2, 3, \"apple\"}`\n\n**Applications:** Storing collections of items, representing relationships (dictionaries), ensuring uniqueness (sets).",
+      "visualization_path": null
+    },
+    "5": {
+      "id": 5,
+      "title": "Object-Oriented Programming in Python",
+      "text_content": "## Object-Oriented Programming (OOP) in Python\n\nOOP is a programming paradigm that uses \"objects\" – instances of classes – to structure code. Objects contain data (attributes) and methods (functions) that operate on that data.\n\n### Key Concepts\n\n*   **Class:** A blueprint for creating objects.\n    *   *Example:* A `Dog` class.\n*   **Object:** An instance of a class.\n    *   *Example:* A specific dog, `my_dog`.\n*   **Attribute:** Data associated with an object.\n    *   *Example:* `my_dog.name = \"Buddy\"`\n*   **Method:** A function defined within a class that operates on an object's attributes.\n    *   *Example:* `my_dog.bark()`\n\n### Practical Example\n\n```python\nclass Car:\n    def __init__(self, make, model): # Constructor method\n        self.make = make           # Attribute\n        self.model = model         # Attribute\n\n    def display_info(self):        # Method\n        print(f\"This is a {self.make} {self.model}.\")\n\nmy_car = Car(\"Toyota\", \"Camry\")\nmy_car.display_info()\n# Output: This is a Toyota Camry.\n```\n\n### Essential Applications\n\n*   Code reusability\n*   Modularity\n*   Data abstraction\n*   Building complex software systems",
+      "visualization_path": null
+    }
+  }
+}

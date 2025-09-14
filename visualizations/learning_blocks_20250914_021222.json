@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "generated_at": "2025-09-14T02:12:22.625629",
+    "total_blocks": 5,
+    "version": "1.0"
+  },
+  "blocks": {
+    "1": {
+      "id": 1,
+      "title": "Python Basics and Data Types",
+      "text_content": "## Python Basics and Data Types\n\nPython is a versatile programming language known for its readability. Data types represent the kind of data a variable can hold.\n\n### Core Concepts\n\n*   **Variables:** Containers for storing data values.\n*   **Data Types:** Define the nature of data (e.g., numbers, text).\n\n### Key Data Types\n\n*   **Integers (`int`):** Whole numbers.\n    *   `age = 30`\n*   **Floats (`float`):** Numbers with decimal points.\n    *   `price = 19.99`\n*   **Strings (`str`):** Sequences of characters (text).\n    *   `name = \"Alice\"`\n*   **Booleans (`bool`):** Represent truth values (`True` or `False`).\n    *   `is_active = True`\n\n### Practical Example\n\n```python\n# Assigning values to variables of different data types\nuser_count = 150\naverage_score = 85.5\nuser_greeting = \"Hello, User!\"\nis_logged_in = False\n\nprint(user_count)\nprint(average_score)\nprint(user_greeting)\nprint(is_logged_in)\n```\n\n### Essential Applications\n\n*   Web Development\n*   Data Analysis\n*   Automation Scripts\n*   Machine Learning",
+      "visualization_path": null
+    },
+    "2": {
+      "id": 2,
+      "title": "Control Flow and Functions",
+      "text_content": "## Control Flow and Functions\n\nControl flow determines the order in which code is executed. Functions group reusable blocks of code.\n\n### Control Flow\n\n*   **`if`/`else` Statements:** Execute code based on conditions.\n    *   *Example:* `if (score > 90) { print(\"A\"); } else { print(\"B\"); }`\n*   **Loops (`for`, `while`):** Repeat code multiple times.\n    *   *Example:* `for (i = 0; i < 5; i++) { print(i); }` (Prints 0, 1, 2, 3, 4)\n\n### Functions\n\n*   **Definition:** A named block of code that performs a specific task.\n*   **Calling:** Executing a function.\n*   **Parameters/Arguments:** Values passed into a function.\n*   **Return Value:** The output of a function.\n\n*   *Example:*\n\n    ```python\n    def greet(name):\n      return \"Hello, \" + name\n\n    message = greet(\"Alice\") # message is now \"Hello, Alice\"\n    ```\n\n**Applications:**\n*   Structuring programs logically.\n*   Avoiding code repetition (DRY principle).\n*   Creating modular and testable code.",
+      "visualization_path": null
+    },
+    "3": {
+      "id": 3,
+      "title": "Object-Oriented Programming in Python",
+      "text_content": "## Object-Oriented Programming (OOP) in Python\n\nOOP is a programming paradigm that uses \"objects\" – instances of classes – to structure code. Objects combine data (attributes) and behavior (methods).\n\n### Key Concepts:\n\n*   **Class:** A blueprint for creating objects.\n    *   `class Dog:`\n*   **Object:** An instance of a class.\n    *   `my_dog = Dog()`\n*   **Attribute:** Data associated with an object (variables).\n    *   `my_dog.name = \"Buddy\"`\n*   **Method:** Functions associated with an object (actions).\n    *   `my_dog.bark()`\n*   **Inheritance:** A class can inherit attributes/methods from another class.\n*   **Encapsulation:** Bundling data and methods within an object.\n*   **Polymorphism:** Objects of different classes responding to the same method call.\n\n### Example:\n\n```python\nclass Car:\n    def __init__(self, make, model): # Constructor\n        self.make = make\n        self.model = model\n\n    def start_engine(self): # Method\n        print(f\"{self.make} {self.model}'s engine started!\")\n\nmy_car = Car(\"Toyota\", \"Camry\")\nprint(my_car.make) # Output: Toyota\nmy_car.start_engine() # Output: Toyota Camry's engine started!\n```\n\n### Applications:\n\n*   Building complex software applications.\n*   Creating reusable code components.\n*   Data modeling.\n*   Web development frameworks (e.g., Django, Flask).",
+      "visualization_path": null
+    },
+    "4": {
+      "id": 4,
+      "title": "File Handling and Modules",
+      "text_content": "## File Handling & Modules\n\nFile handling allows programs to read from and write to files. Modules allow you to organize code into reusable units.\n\n### File Handling\n\n*   **Opening Files:** Use `open()` with modes like 'r' (read), 'w' (write), 'a' (append).\n*   **Reading:** Methods include `read()`, `readline()`, `readlines()`.\n*   **Writing:** Use `write()` or `writelines()`.\n*   **Closing:** Crucial to use `close()` or a `with` statement for automatic closing.\n\n**Example:**\n\n```python\n# Writing to a file\nwith open(\"my_file.txt\", \"w\") as f:\n    f.write(\"Hello, file!\\n\")\n\n# Reading from a file\nwith open(\"my_file.txt\", \"r\") as f:\n    content = f.read()\n    print(content) # Output: Hello, file!\n```\n\n### Modules\n\n*   **Importing:** Use `import module_name` or `from module_name import specific_item`.\n*   **Creating:** Save Python code in `.py` files and import them.\n\n**Example:**\n\n**`my_module.py`**\n```python\ndef greet(name):\n    return f\"Hello, {name}!\"\n```\n\n**`main.py`**\n```python\nimport my_module\n\nmessage = my_module.greet(\"Alice\")\nprint(message) # Output: Hello, Alice!\n```\n\n**Applications:** Storing data, configuration, code organization, and reuse.",
+      "visualization_path": null
+    },
+    "5": {
+      "id": 5,
+      "title": "Data Structures and Algorithms in Python",
+      "text_content": "## Data Structures & Algorithms in Python\n\nData Structures organize data efficiently, while Algorithms provide step-by-step procedures to solve problems using these structures. Python offers built-in support and libraries for both.\n\n### Key Concepts:\n\n*   **Data Structures:**\n    *   **Arrays/Lists:** Ordered collections. Example: `my_list = [1, 2, 3]`\n    *   **Linked Lists:** Sequential nodes with pointers.\n    *   **Stacks:** LIFO (Last-In, First-Out). `append()` and `pop()` on a list.\n    *   **Queues:** FIFO (First-In, First-Out). `collections.deque`.\n    *   **Trees:** Hierarchical structures.\n    *   **Graphs:** Nodes and edges representing relationships.\n    *   **Hash Tables/Dictionaries:** Key-value pairs. Example: `my_dict = {\"key\": \"value\"}`\n\n*   **Algorithms:**\n    *   **Sorting:** Arranging data (e.g., bubble sort, quicksort).\n    *   **Searching:** Finding elements (e.g., linear search, binary search).\n    *   **Recursion:** Function calling itself.\n\n### Practical Example:\n\nSearching a sorted list using **Binary Search**.\n\n```python\ndef binary_search(arr, target):\n    low = 0\n    high = len(arr) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if arr[mid] == target:\n            return mid  # Found\n        elif arr[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1 # Not found\n\nsorted_numbers = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]\nprint(binary_search(sorted_numbers, 23)) # Output: 5\n```\n\n### Essential Applications:\n\n*   Efficient data management in databases.\n*   Optimizing search engines.\n*   Developing AI and machine learning models.\n*   Network routing.",
+      "visualization_path": "visualization_5c3c19a1.mp4"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "generated_at": "2025-09-14T02:07:21.983872",
+    "total_blocks": 5,
+    "version": "1.0"
+  },
+  "blocks": {
+    "1": {
+      "id": 1,
+      "title": "vectors",
+      "text_content": "## Vectors\n\nVectors are mathematical objects with both magnitude (size) and direction. They are fundamental in physics, engineering, and computer science.\n\n### Key Concepts\n\n*   **Magnitude:** The length or size of the vector.\n*   **Direction:** The orientation of the vector in space.\n*   **Representation:** Often shown as an arrow or a list of components (e.g., `[x, y]` in 2D).\n\n### Example\n\nA car traveling 60 mph **north** is a vector.\n*   Magnitude: 60 mph\n*   Direction: North\n\n### Code Example (Python)\n\n```python\nimport numpy as np\n\n# 2D vector\nv = np.array([3, 4])\n\n# Magnitude (length)\nmagnitude = np.linalg.norm(v)\nprint(f\"Magnitude: {magnitude}\") # Output: Magnitude: 5.0\n```\n\n### Applications\n\n*   Physics (force, velocity, acceleration)\n*   Computer Graphics (translations, rotations)\n*   Machine Learning (feature representation)",
+      "visualization_path": "visualization_f8f311aa.mp4"
+    },
+    "2": {
+      "id": 2,
+      "title": "matrices",
+      "text_content": "## Matrices\n\nA matrix is a rectangular array of numbers, symbols, or expressions, arranged in rows and columns.\n\n### Key Concepts\n\n*   **Elements:** Individual entries within the matrix.\n*   **Dimensions:** Represented as *rows x columns*.\n*   **Types:** Square, identity, zero, row, column matrices.\n*   **Operations:** Addition, subtraction, scalar multiplication, matrix multiplication.\n\n### Example\n\nConsider matrix A:\n\n```\n[ 1  2 ]\n[ 3  4 ]\n```\n\nThis is a 2x2 matrix.\n\n### Applications\n\n*   **Computer Graphics:** Transforming shapes and images.\n*   **Solving Systems of Equations:** Representing coefficients and constants.\n*   **Data Analysis:** Storing and manipulating datasets.\n*   **Machine Learning:** Powering algorithms like neural networks.",
+      "visualization_path": null
+    },
+    "3": {
+      "id": 3,
+      "title": "linear transformations",
+      "text_content": "## Linear Transformations\n\nA linear transformation is a function between two vector spaces that preserves vector addition and scalar multiplication. It's a fundamental concept in linear algebra, mapping vectors from one space to another while maintaining the \"straightness\" and \"origin-preserving\" properties of the space.\n\n### Key Concepts\n\n*   **Preserves Addition:** T(u + v) = T(u) + T(v)\n*   **Preserves Scalar Multiplication:** T(cu) = cT(u)\n*   **Matrix Representation:** Can be represented by a matrix. Applying the transformation is equivalent to matrix multiplication.\n\n### Example\n\nConsider a transformation T from R² to R² defined by T(x, y) = (2x, y).\n\n*   **Visual:** This transformation stretches vectors horizontally by a factor of 2.\n    *   If you have a point (1,1), it transforms to (2,1).\n    *   If you have a point (1,2), it transforms to (2,2).\n    The line segment from (0,0) to (1,1) is mapped to the line segment from (0,0) to (2,2).\n\n### Applications\n\n*   **Computer Graphics:** Scaling, rotation, and shearing of objects.\n*   **Physics:** Describing physical phenomena like motion and forces.\n*   **Machine Learning:** Feature extraction and dimensionality reduction.\n\n### Code Example (Python with NumPy)\n\n```python\nimport numpy as np\n\n# Define a transformation matrix (e.g., scaling by 2 in x, no change in y)\nA = np.array([[2, 0],\n              [0, 1]])\n\n# Define a vector\nv = np.array([3, 4])\n\n# Apply the transformation\nTv = A @ v\n\nprint(f\"Original vector: {v}\")\nprint(f\"Transformed vector: {Tv}\")\n# Output:\n# Original vector: [3 4]\n# Transformed vector: [6 4]\n```",
+      "visualization_path": "visualization_5dc1b1ca.mp4"
+    },
+    "4": {
+      "id": 4,
+      "title": "eigenvalues and eigenvectors",
+      "text_content": "## Eigenvalues and Eigenvectors\n\nEigenvalues and eigenvectors are fundamental concepts in linear algebra, describing how a linear transformation stretches or shrinks vectors.\n\n### Key Concepts\n\n*   **Eigenvector:** A non-zero vector that, when a linear transformation is applied to it, only changes by a scalar factor. Its direction remains the same (or is reversed).\n*   **Eigenvalue:** The scalar factor by which an eigenvector is stretched or shrunk by the linear transformation.\n\n### The Equation\n\nThe relationship is defined by the equation: $A\\mathbf{v} = \\lambda\\mathbf{v}$\n\n*   $A$: The transformation matrix.\n*   $\\mathbf{v}$: The eigenvector.\n*   $\\lambda$: The eigenvalue.\n\n### Example\n\nConsider the matrix $A = \\begin{pmatrix} 2 & 1 \\\\ 1 & 2 \\end{pmatrix}$.\n\n*   An eigenvector is $\\mathbf{v}_1 = \\begin{pmatrix} 1 \\\\ 1 \\end{pmatrix}$.\n*   The corresponding eigenvalue is $\\lambda_1 = 3$.\n\nCheck: $A\\mathbf{v}_1 = \\begin{pmatrix} 2 & 1 \\\\ 1 & 2 \\end{pmatrix} \\begin{pmatrix} 1 \\\\ 1 \\end{pmatrix} = \\begin{pmatrix} 3 \\\\ 3 \\end{pmatrix} = 3 \\begin{pmatrix} 1 \\\\ 1 \\end{pmatrix} = \\lambda_1\\mathbf{v}_1$.\n\n### Applications\n\n*   **Principal Component Analysis (PCA):** Dimensionality reduction.\n*   **Quantum Mechanics:** Describing states of systems.\n*   **Vibration Analysis:** Identifying natural frequencies.\n*   **Google's PageRank Algorithm:** Ranking web pages.",
+      "visualization_path": null
+    },
+    "5": {
+      "id": 5,
+      "title": "applications",
+      "text_content": "## Applications: Bringing Code to Life\n\nApplications, or \"apps,\" are software programs designed to perform specific tasks for users. They are the tangible output of programming, allowing us to interact with technology for various purposes.\n\n### Key Concepts:\n\n*   **User Interface (UI):** The visual elements users interact with (buttons, menus).\n*   **Functionality:** The specific tasks the app is designed to do.\n*   **Platform:** The operating system or environment where the app runs (iOS, Android, Windows).\n\n### Example: A To-Do List App\n\n*   **UI:** Buttons to add tasks, checkboxes to mark as complete.\n*   **Functionality:** Allows users to create, edit, and delete tasks.\n*   **Platform:** Runs on iOS (iPhone) or Android smartphones.\n\n### Essential Applications:\n\n*   **Productivity:** Word processors, spreadsheets.\n*   **Communication:** Email clients, messaging apps.\n*   **Entertainment:** Games, streaming services.\n*   **Utility:** Calculators, weather apps.",
+      "visualization_path": null
+    }
+  }
+}

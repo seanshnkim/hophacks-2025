@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "generated_at": "2025-09-14T02:22:30.386568",
+    "total_blocks": 5,
+    "version": "1.0"
+  },
+  "blocks": {
+    "1": {
+      "id": 1,
+      "title": "Python Syntax and Data Types",
+      "text_content": "## Python Syntax and Data Types\n\nPython syntax is a set of rules that defines how Python code is written and interpreted. Data types represent the kind of data a variable can hold.\n\n### Core Concepts\n\n*   **Indentation:** Python uses whitespace (spaces or tabs) to define code blocks (like loops or functions), instead of braces.\n*   **Variables:** Used to store data; assigned using `=`.\n*   **Data Types:**\n    *   **Integers (`int`):** Whole numbers (e.g., `10`, `-5`).\n    *   **Floats (`float`):** Numbers with decimal points (e.g., `3.14`, `-0.5`).\n    *   **Strings (`str`):** Text enclosed in quotes (e.g., `\"hello\"`, `'Python'`).\n    *   **Booleans (`bool`):** `True` or `False`.\n\n### Code Example\n\n```python\n# Variable assignment\nage = 30  # int\nprice = 19.99  # float\nname = \"Alice\"  # str\nis_student = True  # bool\n\n# Printing variables\nprint(age)\nprint(price)\nprint(name)\nprint(is_student)\n```\n\n### Applications\n\n*   Storing user input\n*   Performing calculations\n*   Representing text information\n*   Controlling program flow",
+      "visualization_path": "visualization_574dc14f.mp4"
+    },
+    "2": {
+      "id": 2,
+      "title": "Control Flow and Functions",
+      "text_content": "## Control Flow and Functions\n\nControl flow determines the order in which code statements are executed. Functions are reusable blocks of code that perform a specific task.\n\n### Control Flow\n\n*   **`if`/`else` statements:** Execute code based on a condition.\n    ```python\n    if temperature > 30:\n        print(\"It's hot!\")\n    else:\n        print(\"It's not too hot.\")\n    ```\n*   **Loops (`for`, `while`):** Repeat code execution.\n    ```python\n    for i in range(3):\n        print(i) # Prints 0, 1, 2\n    ```\n\n### Functions\n\n*   **Definition:** Use `def` to create a function.\n*   **Calling:** Execute a function by using its name followed by parentheses.\n    ```python\n    def greet(name):\n        return f\"Hello, {name}!\"\n\n    message = greet(\"Alice\") # message is \"Hello, Alice!\"\n    ```\n\n**Applications:**\n*   Conditional logic in decision-making programs.\n*   Automating repetitive tasks with loops.\n*   Organizing code into modular, reusable units.",
+      "visualization_path": null
+    },
+    "3": {
+      "id": 3,
+      "title": "Object-Oriented Programming in Python",
+      "text_content": "## Object-Oriented Programming (OOP) in Python\n\nOOP is a programming paradigm centered around \"objects,\" which encapsulate data and methods. This allows for modular, reusable, and organized code.\n\n### Key Concepts\n\n*   **Class:** A blueprint for creating objects.\n*   **Object:** An instance of a class, with its own state (attributes) and behavior (methods).\n*   **Attributes:** Variables that store data within an object.\n*   **Methods:** Functions defined within a class that operate on object data.\n\n### Example\n\n```python\nclass Dog:\n    def __init__(self, name, breed):\n        self.name = name  # Attribute\n        self.breed = breed # Attribute\n\n    def bark(self): # Method\n        print(f\"{self.name} says Woof!\")\n\nmy_dog = Dog(\"Buddy\", \"Golden Retriever\") # Object creation\nprint(my_dog.name) # Accessing attribute\nmy_dog.bark()      # Calling method\n```\n\n### Applications\n\n*   Software development\n*   Web development (frameworks like Django)\n*   Game development\n*   Data science",
+      "visualization_path": null
+    },
+    "4": {
+      "id": 4,
+      "title": "File Handling and Modules",
+      "text_content": "## File Handling & Modules\n\nFile handling allows programs to read from and write to files. Modules are collections of functions and variables that can be imported into other programs to reuse code.\n\n### File Handling\n\n*   **Opening Files:** Use `open()` with modes like 'r' (read), 'w' (write), 'a' (append).\n*   **Reading:** `read()`, `readline()`, `readlines()`.\n*   **Writing:** `write()`, `writelines()`.\n*   **Closing:** `close()` to free resources. Use `with open(...)` for automatic closing.\n\n**Example:**\n\n```python\n# Writing to a file\nwith open(\"my_file.txt\", \"w\") as f:\n    f.write(\"Hello, file!\\n\")\n\n# Reading from a file\nwith open(\"my_file.txt\", \"r\") as f:\n    content = f.read()\n    print(content)\n```\n\n### Modules\n\n*   **Importing:** Use `import module_name` or `from module_name import specific_function`.\n*   **Reusability:** Avoid rewriting common code.\n\n**Example:**\n\n```python\n# Import the math module\nimport math\nprint(math.sqrt(16)) # Output: 4.0\n```\n\n**Applications:** Storing persistent data, organizing code, using pre-built functionalities (e.g., math operations, date/time manipulation).",
+      "visualization_path": null
+    },
+    "5": {
+      "id": 5,
+      "title": "Introduction to Data Science Libraries",
+      "text_content": "## Introduction to Data Science Libraries\n\nData science libraries are pre-written code packages that simplify complex data analysis tasks. They provide ready-made functions and tools, saving time and effort.\n\n### Key Concepts\n\n*   **Modularity:** Libraries break down tasks into reusable components.\n*   **Efficiency:** Optimized code runs faster than manual implementation.\n*   **Community Support:** Large communities contribute to library development and offer help.\n\n### Popular Libraries & Uses\n\n*   **NumPy:** For numerical operations and array manipulation.\n    *   *Example:* `np.array([1, 2, 3])` creates a numerical array.\n*   **Pandas:** For data manipulation and analysis, especially with tabular data.\n    *   *Example:* Reading CSV files into DataFrames for easy filtering and sorting.\n*   **Matplotlib/Seaborn:** For data visualization.\n    *   *Example:* Creating scatter plots to show relationships between variables.\n*   **Scikit-learn:** For machine learning algorithms.\n    *   *Example:* Training a linear regression model with a few lines of code.\n\n### Applications\n\n*   Data cleaning and preprocessing\n*   Statistical analysis\n*   Machine learning model building\n*   Data visualization",
+      "visualization_path": "visualization_b39bea9a.mp4"
+    }
+  }
+}

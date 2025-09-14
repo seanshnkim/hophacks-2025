@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "generated_at": "2025-09-14T02:04:21.035399",
+    "total_blocks": 5,
+    "version": "1.0"
+  },
+  "blocks": {
+    "1": {
+      "id": 1,
+      "title": "Vectors",
+      "text_content": "## Vectors\n\nA vector is a quantity that has both magnitude (size) and direction.\n\n### Key Concepts\n\n*   **Magnitude:** The length or size of the vector.\n*   **Direction:** The orientation of the vector in space.\n*   **Representation:** Often depicted as an arrow; can be represented by coordinates.\n\n### Example\n\nImagine driving 5 miles north. This is a vector: 5 miles is the magnitude, and north is the direction.\n\n### Applications\n\n*   **Physics:** Representing force, velocity, acceleration.\n*   **Computer Graphics:** Defining positions, directions, and movements.\n*   **Engineering:** Analyzing structures and systems.\n\n```python\n# Example in Python using a list to represent a 2D vector\nvector_a = [3, 4] # Represents a vector with x-component 3 and y-component 4\n\n# Magnitude calculation (Pythagorean theorem)\nmagnitude_a = (vector_a[0]**2 + vector_a[1]**2)**0.5\nprint(f\"Magnitude of vector_a: {magnitude_a}\") # Output: Magnitude of vector_a: 5.0\n```",
+      "visualization_path": null
+    },
+    "2": {
+      "id": 2,
+      "title": "Matrices",
+      "text_content": "## Matrices\n\nA matrix is a rectangular array of numbers, symbols, or expressions arranged in rows and columns.\n\n### Key Concepts\n\n*   **Elements:** Individual entries within the matrix.\n*   **Dimensions:** Represented as *m* x *n* (rows x columns).\n*   **Types:** Square, identity, zero, row, column matrices.\n*   **Operations:** Addition, subtraction, scalar multiplication, matrix multiplication.\n\n### Example\n\nConsider a 2x3 matrix A:\n```\n[ 1  2  3 ]\n[ 4  5  6 ]\n```\n*   It has 2 rows and 3 columns.\n*   The element in the first row, second column is 2.\n\n### Applications\n\n*   **Computer Graphics:** Transformations (scaling, rotation).\n*   **Physics:** Solving systems of linear equations.\n*   **Economics:** Modeling relationships between variables.",
+      "visualization_path": null
+    },
+    "3": {
+      "id": 3,
+      "title": "Linear Transformations",
+      "text_content": "## Linear Transformations\n\nA linear transformation is a function between two vector spaces that preserves vector addition and scalar multiplication. It maps vectors from one space to another while maintaining their linear relationships.\n\n### Key Concepts\n\n*   **Preserves Addition:** T(u + v) = T(u) + T(v)\n*   **Preserves Scalar Multiplication:** T(cu) = cT(u)\n*   **Matrix Representation:** Can often be represented by a matrix multiplication.\n\n### Visual Example\n\nImagine stretching or rotating a shape on a 2D plane. A linear transformation can do this. For instance, doubling the x-coordinate of every point in a shape is a linear transformation.\n\n### Code Example (Python with NumPy)\n\n```python\nimport numpy as np\n\ndef linear_transform(vector, matrix):\n  return np.dot(matrix, vector)\n\n# Original vector\nv = np.array([1, 2])\n\n# Transformation matrix (e.g., scaling x by 2, y by 3)\nA = np.array([[2, 0],\n              [0, 3]])\n\n# Transformed vector\nv_transformed = linear_transform(v, A)\nprint(v_transformed) # Output: [2 6]\n```\n\n### Applications\n\n*   Computer graphics (scaling, rotation, translation)\n*   Physics (quantum mechanics, classical mechanics)\n*   Data analysis (dimensionality reduction like PCA)",
+      "visualization_path": null
+    },
+    "4": {
+      "id": 4,
+      "title": "Eigenvalues and Eigenvectors",
+      "text_content": "## Eigenvalues and Eigenvectors\n\nEigenvalues and eigenvectors are fundamental concepts in linear algebra, describing how a linear transformation scales and directs vectors.\n\n### Key Concepts\n\n*   **Eigenvector:** A non-zero vector that, when a linear transformation is applied, only changes by a scalar factor. It maintains its original direction.\n*   **Eigenvalue:** The scalar factor by which an eigenvector is stretched or compressed by the linear transformation.\n\n### Mathematical Representation\n\nFor a square matrix $A$, an eigenvector $v$ and its corresponding eigenvalue $\\lambda$ satisfy the equation:\n$Av = \\lambda v$\n\n### Code Example (Python)\n\n```python\nimport numpy as np\n\nA = np.array([[2, 1],\n              [1, 2]])\n\neigenvalues, eigenvectors = np.linalg.eig(A)\n\nprint(\"Eigenvalues:\", eigenvalues)\nprint(\"Eigenvectors:\\n\", eigenvectors)\n```\n\n### Applications\n\n*   **Principal Component Analysis (PCA):** Reducing dimensionality in data.\n*   **Quantum Mechanics:** Describing states of a system.\n*   **Google's PageRank Algorithm:** Ranking web pages.",
+      "visualization_path": null
+    },
+    "5": {
+      "id": 5,
+      "title": "Applications",
+      "text_content": "## Applications: Core Concept\n\nApplications, or \"apps,\" are software programs designed to perform specific tasks for users. They can be found on various devices, from smartphones and tablets to computers and smart TVs.\n\n### Key Points\n\n*   **Purpose-driven:** Each app has a defined function (e.g., communication, entertainment, productivity).\n*   **Platform-dependent:** Apps are built for specific operating systems (iOS, Android, Windows, macOS).\n*   **Distribution:** Available through app stores (Apple App Store, Google Play Store) or direct downloads.\n\n### Practical Example\n\n*   **WhatsApp:** An application for sending messages and making calls over the internet.\n\n### Essential Applications\n\n*   **Communication:** Email clients, messaging apps, video conferencing.\n*   **Productivity:** Word processors, spreadsheets, note-taking apps.\n*   **Entertainment:** Streaming services, games, social media.\n*   **Utilities:** Calculators, weather apps, navigation.",
+      "visualization_path": null
+    }
+  }
+}
