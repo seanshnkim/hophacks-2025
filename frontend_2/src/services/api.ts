@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { LearnRequest, LearnResponse } from '../types';
 
-const API_BASE_URL = 'http://localhost:8000';
+// const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://hophacks-learnwiz-backend.sliplane.app';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

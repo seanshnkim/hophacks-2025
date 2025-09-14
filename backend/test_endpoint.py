@@ -9,7 +9,8 @@ from datetime import datetime
 
 def main():
     # API endpoint
-    url = "http://localhost:8000/learn"
+    # url = "http://localhost:8000/learn"
+    url = "https://hophacks-learnwiz-backend.sliplane.app/learn"
     
     # Request payload
     payload = {
@@ -36,7 +37,7 @@ def main():
             print(f"Notebook path: {data['playground_path']}")
             
             # Test notebook endpoint
-            notebook_url = f"http://localhost:8000/notebook/{data['playground_path']}"
+            notebook_url = f"https://hophacks-learnwiz-backend.sliplane.app/notebook/{data['playground_path']}"
             print(f"\n📓 Testing notebook endpoint: {notebook_url}")
             
             notebook_response = requests.get(notebook_url)
@@ -59,7 +60,8 @@ def main():
             # Test visualization endpoint if we have a visualization
             for block in data['learning_blocks']:
                 if block['visualization_path']:
-                    viz_url = f"http://localhost:8000/visualization/{block['visualization_path']}"
+                    # viz_url = f"http://localhost:8000/visualization/{block['visualization_path']}"
+                    viz_url = f"https://hophacks-learnwiz-backend.sliplane.app/visualization/{block['visualization_path']}"
                     print(f"\n🎥 Testing visualization endpoint: {viz_url}")
                     
                     viz_response = requests.get(viz_url)
@@ -76,8 +78,8 @@ def main():
             print(f"Response: {response.text}")
             
     except requests.exceptions.ConnectionError:
-        print("❌ Connection error: Make sure the server is running on http://localhost:8000")
-        print("   Start the server with: python run.py")
+        print("❌ Connection error: Make sure the server is running on https://hophacks-learnwiz-backend.sliplane.app")
+        print("   Check your deployment and endpoint URL.")
     except Exception as e:
         print(f"❌ Error: {str(e)}")
 
