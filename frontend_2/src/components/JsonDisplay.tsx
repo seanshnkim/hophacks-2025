@@ -8,7 +8,6 @@ import {
 } from '@mui/material';
 import { Code, VideoLibrary, TextSnippet } from '@mui/icons-material';
 import { LearnResponse } from '../types';
-import ThebeNotebook from './ThebeNotebook';
 
 interface JsonDisplayProps {
   data: LearnResponse | null;
@@ -50,29 +49,31 @@ const JsonDisplay: React.FC<JsonDisplayProps> = ({ data }) => {
           </Box>
 
           <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            Explore and experiment with the learning concepts using the interactive Jupyter notebook below.
+            Interactive Jupyter notebook for hands-on learning.
           </Typography>
 
-          {/* Interactive Notebook */}
+          {/* Data Display */}
           <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <ThebeNotebook data={data} />
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Learning data loaded successfully. Use the left panel to explore content.
+            </Typography>
           </Box>
 
           {/* Quick Stats */}
           <Box sx={{ mt: 3, p: 2, backgroundColor: '#f8f9fa', borderRadius: 2, border: '1px solid #e9ecef' }}>
             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
-              Learning Module Summary
+              Module Summary
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               <Chip
                 icon={<TextSnippet />}
-                label={`${stats.blocksWithContent}/${stats.totalBlocks} topics with content`}
+                label={`${stats.blocksWithContent}/${stats.totalBlocks} topics`}
                 color="success"
                 variant="outlined"
               />
               <Chip
                 icon={<VideoLibrary />}
-                label={`${stats.blocksWithVideo}/${stats.totalBlocks} topics with videos`}
+                label={`${stats.blocksWithVideo}/${stats.totalBlocks} videos`}
                 color="primary"
                 variant="outlined"
               />

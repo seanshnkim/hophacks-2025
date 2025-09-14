@@ -111,29 +111,81 @@ class LearningBlockProcessor:
     
     async def process_topic(self, topic: str, topic_id: int, user_preferences: str = "") -> LearningBlock:
         """
-        Process a single topic into a learning block with content and visualization.
-        Includes retry mechanism for failed visualizations.
+        Process a single topic into a learning block using two-step approach:
+        1. Generate text content (no tools)
+        2. Generate visualization based on text content (if appropriate)
         """
         print(f"📚 Processing topic {topic_id}: {topic}")
         
-        # Create system prompt for individual topic processing
-        topic_prompt = self._create_topic_prompt(user_preferences)
+        # Step 1: Generate text content (no tools)
+        text_content = await self._generate_text_content(topic, user_preferences)
         
-        # Create user message for this specific topic
-        user_message = f"Create learning content for this specific topic: {topic}"
+        # Step 2: Generate visualization based on text content (if appropriate)
+        visualization_path = await self._generate_visualization(topic, text_content)
         
-        # Try up to 3 times for visualization generation
+        return LearningBlock(
+            id=topic_id,
+            topic=topic,
+            text_content=text_content,
+            visualization_path=visualization_path
+        )
+    
+    async def _generate_text_content(self, topic: str, user_preferences: str = "") -> str:
+        """Generate detailed text content for the topic (no tools)"""
+        print(f"📝 Generating text content for: {topic}")
+        
+        text_prompt = self._create_text_prompt(user_preferences)
+        user_message = f"Create comprehensive learning content for this specific topic: {topic}"
+        
+        # Generate content without tools to focus on text
+        content = await learner_agent.get_response(
+            text_prompt, 
+            [{"role": "user", "content": user_message}], 
+            tools=None
+        )
+        
+        # Ensure content is a string
+        if isinstance(content, list):
+            content = '\n'.join(str(item) for item in content)
+        
+        # Fallback: If no content was generated, create a basic explanation
+        if not content.strip():
+            content = f"# {topic}\n\nEssential concepts for {topic.lower()}. Research this topic further for detailed information."
+            print(f"⚠️ No text content generated for '{topic}', using fallback content")
+        else:
+            print(f"✅ Generated {len(content)} characters of text content for '{topic}'")
+        
+        return content
+    
+    async def _generate_visualization(self, topic: str, text_content: str) -> Optional[str]:
+        """Generate visualization based on text content (if appropriate)"""
+        print(f"🎨 Considering visualization for: {topic}")
+        
+        viz_prompt = self._create_visualization_prompt()
+        user_message = f"""Create a simple visualization for the topic "{topic}".
+
+Text Content:
+{text_content}
+
+Create a basic Manim animation that helps explain this topic. Even simple concepts can benefit from visual representation. Examples:
+- Show a concept diagram
+- Create a simple flowchart
+- Display key points as text with animations
+- Show relationships between ideas
+- Create a basic geometric representation
+
+Make it educational and simple - even a basic animation is better than no visualization."""
+        
         max_retries = 3
         visualization_path = None
-        clean_content = ""
         
         for attempt in range(max_retries):
-            print(f"🔄 Attempt {attempt + 1}/{max_retries} for topic: {topic}")
+            print(f"🔄 Visualization attempt {attempt + 1}/{max_retries} for topic: {topic}")
             
-            # Generate content with visualization tools
+            # Generate visualization with tools
             learning_tools = [generate_visualization_video]
             content = await learner_agent.get_response(
-                topic_prompt, 
+                viz_prompt, 
                 [{"role": "user", "content": user_message}], 
                 tools=learning_tools
             )
@@ -141,54 +193,69 @@ class LearningBlockProcessor:
             # Extract visualization path from tool results
             visualization_path = self._extract_visualization_path(content)
             
-            # Check if visualization was successful
-            if visualization_path:
+            # Check if there was a tool error
+            tool_error = self._extract_tool_error(content)
+            
+            if tool_error and attempt < max_retries - 1:
+                print(f"❌ Visualization failed on attempt {attempt + 1}: {tool_error}")
+                print(f"🔄 Retrying with error feedback...")
+                
+                # Add error feedback to the user message for retry
+                user_message = f"""Based on the following text content about "{topic}", create a visualization.
+
+Text Content:
+{text_content}
+
+Previous attempt failed with error: {tool_error}
+Please fix the Manim script and try again."""
+            elif visualization_path:
                 print(f"✅ Visualization successful on attempt {attempt + 1}")
                 break
             else:
-                # Check if there was a tool error
-                tool_error = self._extract_tool_error(content)
-                if tool_error and attempt < max_retries - 1:
-                    print(f"❌ Visualization failed on attempt {attempt + 1}: {tool_error}")
-                    print(f"🔄 Retrying with error feedback...")
-                    
-                    # Add error feedback to the user message for retry
-                    user_message = f"Create learning content for this specific topic: {topic}\n\nPrevious attempt failed with error: {tool_error}\nPlease fix the Manim script and try again."
-                else:
-                    print(f"❌ Visualization failed after {attempt + 1} attempts")
-                    break
+                # No visualization requested - this is fine
+                print(f"ℹ️ No visualization requested for topic: {topic}")
+                break
         
-        # Ensure content is a string before processing
-        if isinstance(content, list):
-            content = '\n'.join(str(item) for item in content)
-        
-        # Clean content (remove tool results section)
-        clean_content = self._clean_content(content)
-        
-        return LearningBlock(
-            id=topic_id,
-            topic=topic,
-            text_content=clean_content,
-            visualization_path=visualization_path
-        )
+        return visualization_path
     
-    def _create_topic_prompt(self, user_preferences: str) -> str:
-        """Create prompt for processing individual topics"""
-        base_prompt = """You are an expert learning assistant that creates detailed learning content for individual topics.
+    def _create_text_prompt(self, user_preferences: str) -> str:
+        """Create prompt focused on text content generation (no tools)"""
+        base_prompt = """You are an expert learning assistant that creates concise, focused learning content.
 
-Your task is to create comprehensive learning content for the given topic.
+Your task is to create clear, educational text content that explains the given topic efficiently.
+
+REQUIRED: Provide educational text content that includes:
+- Clear concept explanation
+- Key examples
+- Practical applications
+- Important points
 
 Guidelines:
-- Create detailed, educational content (not just headings)
-- Explain concepts clearly with examples
-- Make it engaging and easy to understand
-- Include practical applications
-- Adapt content based on user preferences
+- Be concise and direct - no fluff or rambling
+- Use markdown formatting (headings, lists, emphasis)
+- Focus on essential information only
+- Write for clarity, not length
+- Avoid repetitive explanations
+- Adapt to user preferences when provided
 
-CRITICAL: For ANY topic involving visual concepts (graphs, functions, mathematical visualizations, charts, diagrams, etc.), you MUST call the generate_visualization_video tool to create actual Manim animations.
+Create focused content that teaches effectively without unnecessary words."""
+        
+        if user_preferences and user_preferences.strip():
+            base_prompt += f"\n\nUser Preferences: {user_preferences}"
+        
+        return base_prompt
+    
+    def _create_visualization_prompt(self) -> str:
+        """Create prompt focused on visualization generation based on text content"""
+        return """You are an expert at creating educational visualizations using Manim.
 
-Available tools:
-- generate_visualization_video(manim_script, scene_name): Create educational videos
+Your task is to create a simple, educational Manim animation for the given topic.
+
+Guidelines:
+- Create visualizations for ANY topic - even simple concepts benefit from visual representation
+- Focus on: concept diagrams, flowcharts, key points, relationships, basic shapes, or simple animations
+- Use the text content as context to understand what should be visualized
+- Keep it simple but educational
 
 When creating visualizations, follow these STRICT rules to avoid errors:
 
@@ -200,6 +267,9 @@ When creating visualizations, follow these STRICT rules to avoid errors:
 
 2. FORBIDDEN METHODS/OBJECTS (will cause errors):
    - NEVER use: MathTex, Tex, NumberLine, get_graph_label, get_x_axis_label, get_y_axis_label, add_coordinates()
+   - NEVER use: add_coordinate_labels() - this method doesn't exist, use Text() labels instead
+   - NEVER use: Image() - not available, use Text() or other basic shapes instead
+   - NEVER use: align_left, align_right, align_center - these methods don't exist on Text objects
    - NEVER use: include_numbers=True, dx_color, stroke_width, add_brackets, add_row_indices parameters
    - NEVER use: get_end_point() - use get_end() instead
    - NEVER use: get_tangent_line() - not available in this version
@@ -227,34 +297,53 @@ When creating visualizations, follow these STRICT rules to avoid errors:
    - Use: self.play(object.animate.move_to(position)) for movement
    - Use: self.play(FadeOut(object)) for removing objects
 
-5. WORKING EXAMPLE TEMPLATE:
+5. SIMPLE EXAMPLE TEMPLATES:
+
+For any topic, you can create simple visualizations like:
+
 ```python
 from manim import *
 
-class ExampleScene(Scene):
+class SimpleConceptScene(Scene):
     def construct(self):
-        # Create axes
-        axes = Axes(
-            x_range=[-3, 3, 1], 
-            y_range=[-3, 3, 1], 
-            axis_config={"include_numbers": False}
-        )
+        # Simple text-based visualization
+        title = Text("Topic Name").to_edge(UP)
+        self.play(Write(title))
         
-        # Create labels
-        x_label = Text("x").next_to(axes.x_axis.get_end(), RIGHT)
-        y_label = Text("y").next_to(axes.y_axis.get_end(), UP)
+        # Key points
+        point1 = Text("Key Point 1").next_to(title, DOWN, buff=1)
+        point2 = Text("Key Point 2").next_to(point1, DOWN, buff=0.5)
+        point3 = Text("Key Point 3").next_to(point2, DOWN, buff=0.5)
         
-        # Create title
-        title = Text("Example Title").to_edge(UP)
+        self.play(Write(point1))
+        self.wait(0.5)
+        self.play(Write(point2))
+        self.wait(0.5)
+        self.play(Write(point3))
+        self.wait(1)
+```
+
+```python
+from manim import *
+
+class SimpleDiagramScene(Scene):
+    def construct(self):
+        # Simple diagram
+        title = Text("Concept Diagram").to_edge(UP)
+        self.play(Write(title))
         
-        # Create simple objects
-        dot = Dot(axes.coords_to_point(1, 1), color=RED)
-        line = Line(axes.coords_to_point(0, 0), axes.coords_to_point(2, 2), color=BLUE)
+        # Create simple shapes
+        circle = Circle(radius=1, color=BLUE)
+        square = Square(side_length=1.5, color=RED).next_to(circle, RIGHT, buff=1)
+        
+        # Add labels
+        circle_label = Text("A").move_to(circle)
+        square_label = Text("B").move_to(square)
         
         # Animate
-        self.play(Create(axes), Write(x_label), Write(y_label))
-        self.play(Write(title))
-        self.play(Create(dot), Create(line))
+        self.play(Create(circle), Write(circle_label))
+        self.wait(0.5)
+        self.play(Create(square), Write(square_label))
         self.wait(1)
 ```
 
@@ -267,6 +356,9 @@ class ExampleScene(Scene):
    - For tables: Use Text() with newlines instead of Table()
    - For mathematical expressions: Use Text() instead of MathTex() or Tex()
    - For coordinate systems: Use Axes() instead of NumberLine()
+   - For coordinate labels: Use Text() positioned manually instead of add_coordinate_labels()
+   - For images: Use Text() or basic shapes instead of Image()
+   - For text alignment: Use .to_edge(LEFT/RIGHT/UP/DOWN) instead of align_left/align_right
 
 7. ERROR PREVENTION:
    - Test all method calls before using them
@@ -274,27 +366,13 @@ class ExampleScene(Scene):
    - Avoid complex mathematical operations in Manim
    - Keep animations simple and educational
    - Always include self.wait() for timing
-
-8. SPECIFIC ERROR PREVENTION:
-   - Avoid Table() and Matrix() objects entirely - use Text() instead
-   - Never use parameters like add_row_indices, add_brackets, include_numbers
-   - Always test method calls before using them
-   - Use only basic Manim objects: Text, Dot, Line, Arrow, Circle, Rectangle, Polygon
-   - Avoid complex mathematical operations in Manim
-   - Keep animations simple and educational
-   - Always include self.wait() for timing
    - When in doubt, use Text() for any mathematical content
 
-Create detailed, educational content that thoroughly covers the topic."""
-        
-        if user_preferences and user_preferences.strip():
-            return f"""{base_prompt}
+Available tools:
+- generate_visualization_video(manim_script, scene_name): Create educational videos
 
-User Preferences: {user_preferences}
-
-Please tailor your response to match these preferences as much as possible."""
-        else:
-            return base_prompt
+Create a Manim script and call the tool for the given topic. Even simple visualizations help with learning."""
+    
     
     def _extract_visualization_path(self, content: str) -> Optional[str]:
         """Extract visualization path from tool results in content"""

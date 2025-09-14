@@ -93,7 +93,7 @@ const TopicForm: React.FC = () => {
               AI Learning Module Generator
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Enter a topic and get a personalized learning experience with visualizations
+              Enter a topic for personalized learning with visualizations
             </Typography>
           </Box>
 
@@ -131,7 +131,7 @@ const TopicForm: React.FC = () => {
 
               <Box>
                 <Typography variant="h6" gutterBottom>
-                  Learning Preferences (Optional)
+                  Learning Preferences
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
                   {PERSONALIZATION_OPTIONS.map((option) => (
@@ -149,7 +149,7 @@ const TopicForm: React.FC = () => {
                   label="Additional preferences"
                   value={userPreferences}
                   onChange={(e) => setUserPreferences(e.target.value)}
-                  placeholder="Any specific learning style or focus areas..."
+                  placeholder="Specific learning style or focus areas..."
                   multiline
                   rows={2}
                   variant="outlined"
@@ -174,7 +174,7 @@ const TopicForm: React.FC = () => {
                   {isLoading ? (
                     <>
                       <CircularProgress size={20} sx={{ mr: 1 }} />
-                      Generating Learning Module...
+                      Generating...
                     </>
                   ) : (
                     'Generate Learning Module'

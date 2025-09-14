@@ -88,8 +88,17 @@ async def learn(request: LearnRequest):
             raise HTTPException(status_code=400, detail="No learning components could be generated for this topic")
         
         # Check if too many components failed (more than 50% failed)
-        failed_components = sum(1 for block in learning_blocks if not block.text_content.strip())
+        # Count as failed if there's no text content AND no visualization (complete failure)
+        failed_components = sum(1 for block in learning_blocks if not block.text_content.strip() and not block.visualization_path)
         total_components = len(learning_blocks)
+        
+        # Debug: Print details about each block
+        print(f"🔍 Component status summary:")
+        for i, block in enumerate(learning_blocks):
+            has_text = bool(block.text_content.strip())
+            has_viz = bool(block.visualization_path)
+            status = "✅ OK" if (has_text or has_viz) else "❌ FAILED"
+            print(f"  Component {i+1}: {block.topic} - Text: {has_text}, Viz: {has_viz} - {status}")
         
         if failed_components > total_components * 0.5:
             raise HTTPException(

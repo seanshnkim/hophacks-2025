@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { PlayArrow, TextSnippet } from '@mui/icons-material';
 import VideoPlayer from './VideoPlayer';
+import LatexRenderer from './LatexRenderer';
 import { LearningBlock } from '../types';
 
 interface LearningModuleProps {
@@ -54,24 +55,16 @@ const LearningModule: React.FC<LearningModuleProps> = ({
       } else if (line.trim() === '') {
         return <Box key={index} sx={{ height: 16 }} />;
       } else if (line.includes('$') && line.includes('$')) {
-        // Simple math rendering (you could integrate a math renderer here)
+        // LaTeX math rendering
         return (
-          <Typography key={index} variant="body1" sx={{ 
-            fontFamily: 'monospace', 
-            backgroundColor: '#e3f2fd', 
-            p: 2, 
-            borderRadius: 2, 
-            mb: 2,
-            fontSize: '1.1rem',
-            border: '1px solid #bbdefb'
-          }}>
-            {line}
-          </Typography>
+          <Box key={index} sx={{ mb: 2, fontSize: '1.1rem' }}>
+            <LatexRenderer content={line} />
+          </Box>
         );
       } else {
         return (
           <Typography key={index} variant="body1" sx={{ mb: 2, fontSize: '1.1rem', lineHeight: 1.7 }}>
-            {line}
+            <LatexRenderer content={line} />
           </Typography>
         );
       }
@@ -86,7 +79,7 @@ const LearningModule: React.FC<LearningModuleProps> = ({
           {mainTopic}
         </Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
-          Learn through interactive content and visualizations
+          Interactive learning with visualizations
         </Typography>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
           {components.map((component, index) => (
@@ -135,7 +128,7 @@ const LearningModule: React.FC<LearningModuleProps> = ({
               </Box>
             ) : (
               <Typography variant="body1" color="text.secondary" sx={{ fontStyle: 'italic', mb: 3 }}>
-                Content not available for this topic
+                No content available
               </Typography>
             )}
 
@@ -169,7 +162,7 @@ const LearningModule: React.FC<LearningModuleProps> = ({
         <Card>
           <CardContent sx={{ textAlign: 'center', py: 4 }}>
             <Typography variant="h6" color="text.secondary">
-              No learning blocks available
+              No content available
             </Typography>
           </CardContent>
         </Card>

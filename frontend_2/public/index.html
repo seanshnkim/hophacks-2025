@@ -24,8 +24,13 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <!-- Thebe for interactive notebooks -->
-    <script src="https://unpkg.com/thebe@latest/lib/index.js"></script>
+    <!-- Pyodide for browser-based Python execution -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    
+    <!-- Thebe for interactive notebooks - using local assets for better performance -->
+    <link rel="stylesheet" href="%PUBLIC_URL%/thebe/thebe.css">
+    <script src="%PUBLIC_URL%/thebe/thebe.js"></script>
+    <script src="%PUBLIC_URL%/thebe/jupyterlite-pyodide-kernel.js"></script>
     <title>AI Learning Module Generator</title>
   </head>
   <body>
