@@ -148,97 +148,139 @@ class LearningBlockProcessor:
         if isinstance(content, list):
             content = '\n'.join(str(item) for item in content)
         
+        # Clean and validate content
+        content = str(content).strip()
+        
+        # Check if content is too long and needs trimming
+        word_count = len(content.split())
+        if word_count > 250:  # Allow some buffer above 200 word limit
+            print(f"⚠️ Content too long ({word_count} words), trimming for '{topic}'")
+            # Keep only the first 200 words
+            words = content.split()[:200]
+            content = ' '.join(words) + "..."
+        
         # Fallback: If no content was generated, create a basic explanation
-        if not content.strip():
+        if not content:
             content = f"# {topic}\n\nEssential concepts for {topic.lower()}. Research this topic further for detailed information."
             print(f"⚠️ No text content generated for '{topic}', using fallback content")
         else:
-            print(f"✅ Generated {len(content)} characters of text content for '{topic}'")
+            final_word_count = len(content.split())
+            print(f"✅ Generated {len(content)} characters ({final_word_count} words) of text content for '{topic}'")
         
         return content
     
     async def _generate_visualization(self, topic: str, text_content: str) -> Optional[str]:
-        """Generate visualization based on text content (if appropriate)"""
+        """Generate visualization based on text content (if appropriate) with retry logic"""
         print(f"🎨 Considering visualization for: {topic}")
         
         viz_prompt = self._create_visualization_prompt()
-        user_message = f"""Create a simple visualization for the topic "{topic}".
+        user_message = f"""Analyze this topic to determine if it would benefit from visual representation to show logic/setup intuitively:
+
+Topic: "{topic}"
 
 Text Content:
 {text_content}
 
-Create a basic Manim animation that helps explain this topic. Even simple concepts can benefit from visual representation. Examples:
-- Show a concept diagram
-- Create a simple flowchart
-- Display key points as text with animations
-- Show relationships between ideas
-- Create a basic geometric representation
+ANALYSIS QUESTIONS:
+1. Is this topic about logical relationships, processes, or structures?
+2. Would a visual diagram, flowchart, or animation help explain this concept?
+3. Is this topic about relationships, processes, structures, or logical flow?
+4. Would "showing" this concept be more effective than just "telling" about it?
 
-Make it educational and simple - even a basic animation is better than no visualization."""
+If this topic involves:
+- Data structures, algorithms, or mathematical concepts
+- Logical systems, processes, or workflows
+- Spatial relationships, hierarchies, or connections
+- Abstract concepts that can be visualized
+- Step-by-step procedures or transformations
+
+Then create a Manim animation that:
+- Shows the logical structure or flow
+- Illustrates relationships between components
+- Demonstrates processes step-by-step
+- Makes abstract concepts concrete and visual
+
+Use the generate_visualization_video tool to create the animation."""
         
+        # Retry logic for visualization generation
         max_retries = 3
-        visualization_path = None
+        learning_tools = [generate_visualization_video]
         
-        for attempt in range(max_retries):
-            print(f"🔄 Visualization attempt {attempt + 1}/{max_retries} for topic: {topic}")
+        for attempt in range(1, max_retries + 1):
+            print(f"🎨 Visualization attempt {attempt}/{max_retries} for topic: {topic}")
             
-            # Generate visualization with tools
-            learning_tools = [generate_visualization_video]
-            content = await learner_agent.get_response(
-                viz_prompt, 
-                [{"role": "user", "content": user_message}], 
-                tools=learning_tools
-            )
-            
-            # Extract visualization path from tool results
-            visualization_path = self._extract_visualization_path(content)
-            
-            # Check if there was a tool error
-            tool_error = self._extract_tool_error(content)
-            
-            if tool_error and attempt < max_retries - 1:
-                print(f"❌ Visualization failed on attempt {attempt + 1}: {tool_error}")
-                print(f"🔄 Retrying with error feedback...")
+            try:
+                # Generate visualization with tools
+                content = await learner_agent.get_response(
+                    viz_prompt, 
+                    [{"role": "user", "content": user_message}], 
+                    tools=learning_tools
+                )
                 
-                # Add error feedback to the user message for retry
-                user_message = f"""Based on the following text content about "{topic}", create a visualization.
-
-Text Content:
-{text_content}
-
-Previous attempt failed with error: {tool_error}
-Please fix the Manim script and try again."""
-            elif visualization_path:
-                print(f"✅ Visualization successful on attempt {attempt + 1}")
-                break
-            else:
-                # No visualization requested - this is fine
-                print(f"ℹ️ No visualization requested for topic: {topic}")
-                break
+                # Extract visualization path from tool results
+                visualization_path = self._extract_visualization_path(content)
+                
+                # Check if there was a tool error
+                tool_error = self._extract_tool_error(content)
+                
+                if tool_error:
+                    print(f"❌ Visualization attempt {attempt} failed: {tool_error}")
+                    if attempt < max_retries:
+                        print(f"🔄 Retrying visualization for topic: {topic}")
+                        import asyncio
+                        await asyncio.sleep(2)  # Wait 2 seconds before retry
+                        continue
+                    else:
+                        print(f"❌ All visualization attempts failed for topic: {topic}")
+                        return None
+                elif visualization_path:
+                    print(f"✅ Visualization created for topic: {topic} (attempt {attempt})")
+                    return visualization_path
+                else:
+                    print(f"ℹ️ No visualization created for topic: {topic} - AI determined it's not needed")
+                    return None
+                    
+            except Exception as e:
+                print(f"❌ Visualization attempt {attempt} error: {str(e)}")
+                if attempt < max_retries:
+                    print(f"🔄 Retrying visualization for topic: {topic}")
+                    import asyncio
+                    await asyncio.sleep(2)  # Wait 2 seconds before retry
+                    continue
+                else:
+                    print(f"❌ All visualization attempts failed for topic: {topic}")
+                    return None
         
-        return visualization_path
+        return None
     
     def _create_text_prompt(self, user_preferences: str) -> str:
         """Create prompt focused on text content generation (no tools)"""
-        base_prompt = """You are an expert learning assistant that creates concise, focused learning content.
+        base_prompt = """You are an expert learning assistant that creates CONCISE, focused learning content.
 
-Your task is to create clear, educational text content that explains the given topic efficiently.
+TASK: Create brief educational text (MAX 200 words) that explains the topic efficiently.
 
-REQUIRED: Provide educational text content that includes:
-- Clear concept explanation
-- Key examples
-- Practical applications
-- Important points
+REQUIRED FORMAT:
+- Use markdown headings (##, ###)
+- Bullet points for key concepts
+- Brief examples only
+- No fluff or rambling
 
-Guidelines:
-- Be concise and direct - no fluff or rambling
-- Use markdown formatting (headings, lists, emphasis)
-- Focus on essential information only
-- Write for clarity, not length
-- Avoid repetitive explanations
-- Adapt to user preferences when provided
+CONTENT REQUIREMENTS:
+- Core concept explanation (1-2 sentences)
+- Key points (bullet list)
+- 1 practical example
+- Essential applications only
 
-Create focused content that teaches effectively without unnecessary words."""
+STRICT GUIDELINES:
+- MAX 200 words total
+- Be direct and to the point
+- No repetitive explanations
+- No filler words or phrases
+- Focus on actionable information
+- Use simple, clear language
+- Get to the point quickly
+
+Create focused content that teaches effectively in minimal words."""
         
         if user_preferences and user_preferences.strip():
             base_prompt += f"\n\nUser Preferences: {user_preferences}"
@@ -249,13 +291,43 @@ Create focused content that teaches effectively without unnecessary words."""
         """Create prompt focused on visualization generation based on text content"""
         return """You are an expert at creating educational visualizations using Manim.
 
-Your task is to create a simple, educational Manim animation for the given topic.
+Your task is to analyze topics and determine if they would benefit from visual representation to show logic/setup intuitively.
 
-Guidelines:
-- Create visualizations for ANY topic - even simple concepts benefit from visual representation
-- Focus on: concept diagrams, flowcharts, key points, relationships, basic shapes, or simple animations
-- Use the text content as context to understand what should be visualized
-- Keep it simple but educational
+ANALYSIS CRITERIA - CREATE VISUALIZATIONS FOR TOPICS THAT ARE:
+1. LOGICAL/CONCEPTUAL: Topics that involve logical relationships, processes, or structures
+2. VISUAL BY NATURE: Concepts that are inherently spatial, geometric, or diagrammatic
+3. PROCESS-ORIENTED: Step-by-step procedures, workflows, or transformations
+4. RELATIONSHIP-BASED: Concepts involving connections, hierarchies, or dependencies
+5. ABSTRACT BUT VISUALIZABLE: Complex ideas that can be simplified through visual representation
+
+STRONG CANDIDATES FOR VISUALIZATION:
+- Data structures (arrays, trees, graphs, linked lists, stacks, queues, hash tables)
+- Algorithms (sorting, searching, traversal, data structure operations)
+- Mathematical concepts (functions, graphs, equations, geometric shapes, vectors, matrices)
+- Logical systems (boolean logic, decision trees, flowcharts)
+- Scientific processes (step-by-step procedures, transformations, cycles)
+- Spatial relationships (hierarchies, connections, flows, networks)
+- Abstract concepts that involve structure, organization, or systematic thinking
+- Any topic where "showing" the concept would be more effective than just "telling"
+
+WEAK CANDIDATES (usually don't need visualization):
+- Pure text-based topics (writing, literature, history)
+- Memorization-heavy subjects (vocabulary, facts, dates)
+- Topics that are purely theoretical without practical application
+- Simple definitions or explanations that don't involve relationships or processes
+
+DECISION PROCESS:
+1. Analyze the topic name and text content
+2. Ask: "Would a visual diagram, flowchart, or animation help explain this concept?"
+3. Ask: "Is this topic about relationships, processes, structures, or logical flow?"
+4. If YES to either question, create a visualization
+5. If NO to both questions, skip visualization
+
+When creating visualizations, focus on:
+- Showing the logical structure or flow
+- Illustrating relationships between components
+- Demonstrating processes step-by-step
+- Making abstract concepts concrete and visual
 
 When creating visualizations, follow these STRICT rules to avoid errors:
 
@@ -371,7 +443,7 @@ class SimpleDiagramScene(Scene):
 Available tools:
 - generate_visualization_video(manim_script, scene_name): Create educational videos
 
-Create a Manim script and call the tool for the given topic. Even simple visualizations help with learning."""
+Create a Manim script and call the generate_visualization_video tool to help students understand this topic better."""
     
     
     def _extract_visualization_path(self, content: str) -> Optional[str]:

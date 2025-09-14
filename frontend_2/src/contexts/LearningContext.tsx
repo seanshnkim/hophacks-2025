@@ -1,9 +1,18 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { LearnResponse } from '../types';
 
+interface NotebookData {
+  cells: any[];
+  metadata: any;
+  nbformat: number;
+  nbformat_minor: number;
+}
+
 interface LearningContextType {
   learningData: LearnResponse | null;
   setLearningData: (data: LearnResponse | null) => void;
+  notebookData: NotebookData | null;
+  setNotebookData: (data: NotebookData | null) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   error: string | null;
@@ -28,6 +37,7 @@ interface LearningProviderProps {
 
 export const LearningProvider: React.FC<LearningProviderProps> = ({ children }) => {
   const [learningData, setLearningData] = useState<LearnResponse | null>(null);
+  const [notebookData, setNotebookData] = useState<NotebookData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
@@ -37,6 +47,8 @@ export const LearningProvider: React.FC<LearningProviderProps> = ({ children }) 
       value={{
         learningData,
         setLearningData,
+        notebookData,
+        setNotebookData,
         isLoading,
         setIsLoading,
         error,

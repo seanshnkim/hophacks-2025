@@ -20,7 +20,7 @@ export interface PlaygroundData {
 
 export interface LearnResponse {
   learning_blocks: LearningBlock[];
-  playground: PlaygroundData;
+  playground_path: string;
   main_topic: string;
   components: string[];
   timestamp: string;

@@ -5,7 +5,7 @@ import { Box, Alert, Snackbar } from '@mui/material';
 import { LearningProvider, useLearning } from './contexts/LearningContext';
 import TopicForm from './components/TopicForm';
 import LearningModule from './components/LearningModule';
-import JsonDisplay from './components/JsonDisplay';
+import NotebookViewer from './components/NotebookViewer';
 
 const theme = createTheme({
   palette: {
@@ -22,7 +22,7 @@ const theme = createTheme({
 });
 
 const AppContent: React.FC = () => {
-  const { learningData, error, setError } = useLearning();
+  const { learningData, notebookData, error, setError } = useLearning();
 
   const handleCloseError = () => {
     setError(null);
@@ -57,7 +57,11 @@ const AppContent: React.FC = () => {
             height: { xs: '50%', md: '100%' },
             overflow: 'hidden'
           }}>
-            <JsonDisplay data={learningData} />
+            <NotebookViewer 
+              notebookData={notebookData} 
+              isLoading={!notebookData && !!learningData}
+              error={error}
+            />
           </Box>
         </Box>
       )}

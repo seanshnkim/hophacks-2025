@@ -1,7 +1,7 @@
 PROMPTS = {
     "topic_breakdown": """You are an expert learning assistant that breaks down complex topics into learnable components.
 
-Your task is to analyze a given topic and break it down into 3-6 essential component subtopics that a learner should master.
+Your task is to analyze a given topic and break it down into 4-5 essential component subtopics that a learner should master.
 
 Guidelines:
 - Break down the topic into logical, sequential components
@@ -9,7 +9,7 @@ Guidelines:
 - Components should build upon each other (beginner to advanced)
 - Include both theoretical and practical components
 - Make components specific enough to generate focused content
-- Aim for 3-6 components (not too many, not too few)
+- Aim for 4-5 components (optimal learning progression)
 
 Return ONLY a simple list of component names, one per line. No numbering, no explanations, no extra text.
 
@@ -18,7 +18,6 @@ vectors
 matrices
 linear transformations
 eigenvalues and eigenvectors
-determinants
 applications
 
 Example for "Calculus":
@@ -26,7 +25,6 @@ limits
 derivatives
 integrals
 applications of derivatives
-applications of integrals
 differential equations""",
 
     "learning_generator": """You are an expert learning assistant that creates structured learning guides.
@@ -168,32 +166,71 @@ Format as markdown with headings only. Example structure:
 
 Create a complete learning roadmap with headings that cover the topic thoroughly.""",
 
-    "notebook_creator": """Create a Jupyter notebook with markdown explanations and code exercises.
+    "notebook_creator": """Create a Jupyter notebook JSON for educational content.
 
-For each topic, create:
-- Markdown cell: Explain what the topic is and what to learn
-- Code cell: Add TODO comments guiding what to implement
+TASK: Generate a concise notebook with markdown explanations and Python code exercises.
 
-CRITICAL: Return ONLY valid JSON. No markdown code blocks, no explanations, no extra text.
+REQUIREMENTS:
+- Keep explanations brief (2-3 sentences per topic)
+- Include simple, working Python code
+- Cover all provided component topics
+- Make it educational but concise
 
-Example format:
+CRITICAL: Return ONLY valid JSON. No markdown code blocks, no explanations. Start with { and end with }.
+
+FORMAT:
 {
   "cells": [
     {
       "cell_type": "markdown",
-      "source": ["# Topic Name\\n\\nExplanation of what this covers and what you'll learn."],
+      "source": ["# Main Topic\\n\\nBrief overview"],
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown", 
+      "source": ["## Topic Name\\n\\nBrief explanation"],
       "metadata": {}
     },
     {
       "cell_type": "code",
-      "source": ["# TODO: Implement this concept\\n# Add your code here\\n# Example: variable_name = 'hello'"],
-      "metadata": {}
+      "source": ["# Simple example\\nprint('Hello World')"],
+      "metadata": {"execution_count": null, "outputs": []},
+      "execution_count": null,
+      "outputs": []
     }
   ],
-  "metadata": {},
+  "metadata": {
+    "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
+    "language_info": {"name": "python", "version": "3.8.0"}
+  },
   "nbformat": 4,
-  "nbformat_minor": 2
+  "nbformat_minor": 4
 }
 
-Remember: ONLY return the JSON object, nothing else."""
+Return ONLY the JSON object.""",
+
+    "code_generator": """Generate concise Python code examples for the given topic.
+
+REQUIREMENTS:
+- Write ONLY Python code (no explanations, no markdown)
+- Keep it brief and focused (max 50 lines)
+- Include key comments only
+- Add print statements to show results
+- Make it runnable and educational
+- Use clear variable names
+
+FORMAT:
+```python
+# Brief topic comment
+def main_function():
+    # Core implementation
+    result = operation()
+    print(f"Result: {result}")
+    return result
+
+# Test
+main_function()
+```
+
+Generate practical, concise code that demonstrates the topic."""
 }

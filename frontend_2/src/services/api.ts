@@ -23,6 +23,20 @@ export const learningAPI = {
     return `${API_BASE_URL}/visualization/${visualizationPath}`;
   },
 
+  getNotebookUrl(filename: string): string {
+    return `${API_BASE_URL}/notebook/${filename}`;
+  },
+
+  async fetchNotebook(filename: string): Promise<any> {
+    try {
+      const response = await api.get(`/notebook/${filename}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching notebook:', error);
+      throw new Error('Failed to fetch notebook. Please try again.');
+    }
+  },
+
   async checkHealth(): Promise<boolean> {
     try {
       const response = await api.get('/health');

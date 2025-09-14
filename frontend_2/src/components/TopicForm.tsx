@@ -37,7 +37,7 @@ const PERSONALIZATION_OPTIONS = [
 ];
 
 const TopicForm: React.FC = () => {
-  const { setLearningData, setIsLoading, setError, error, isLoading } = useLearning();
+  const { setLearningData, setNotebookData, setIsLoading, setError, error, isLoading } = useLearning();
   const [topic, setTopic] = useState('');
   const [userPreferences, setUserPreferences] = useState('');
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
@@ -64,6 +64,17 @@ const TopicForm: React.FC = () => {
       });
 
       setLearningData(response);
+
+      // Fetch the notebook data
+      if (response.playground_path) {
+        try {
+          const notebookData = await learningAPI.fetchNotebook(response.playground_path);
+          setNotebookData(notebookData);
+        } catch (notebookError) {
+          console.error('Failed to fetch notebook:', notebookError);
+          // Don't fail the entire request if notebook fetch fails
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

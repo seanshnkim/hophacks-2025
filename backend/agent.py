@@ -47,29 +47,38 @@ class LearnerAgent:
         
         # Get response from LLM with or without tools
         if tools:
-            response = self.llm.invoke(llm_messages, tools=tools)
-            
-            # Check if the response contains tool calls
-            if hasattr(response, 'tool_calls') and response.tool_calls:
-                print(f"🔧 Tool calls detected: {len(response.tool_calls)} calls")
-                # Execute tool calls
-                tool_results = []
-                for tool_call in response.tool_calls:
-                    print(f"🔧 Executing tool: {tool_call['name']}")
-                    if tool_call['name'] == 'generate_visualization_video':
-                        # Call the tool function directly instead of using LangChain's tool calling
-                        result = await generate_visualization_video.ainvoke({
-                            'manim_script': tool_call['args']['manim_script'],
-                            'scene_name': tool_call['args'].get('scene_name', 'Scene')
-                        })
-                        tool_results.append(result)
-                        print(f"🔧 Tool result: {result}")
+            try:
+                response = self.llm.invoke(llm_messages, tools=tools)
                 
-                # Add tool results to the response
-                if tool_results:
-                    response.content += f"\n\nTool Results:\n" + "\n".join(tool_results)
-            else:
-                print("🔧 No tool calls detected in response")
+                # Check if the response contains tool calls
+                if hasattr(response, 'tool_calls') and response.tool_calls:
+                    print(f"🔧 Tool calls detected: {len(response.tool_calls)} calls")
+                    # Execute tool calls
+                    tool_results = []
+                    for tool_call in response.tool_calls:
+                        print(f"🔧 Executing tool: {tool_call['name']}")
+                        if tool_call['name'] == 'generate_visualization_video':
+                            # Call the tool function directly instead of using LangChain's tool calling
+                            result = await generate_visualization_video.ainvoke({
+                                'manim_script': tool_call['args']['manim_script'],
+                                'scene_name': tool_call['args'].get('scene_name', 'Scene')
+                            })
+                            tool_results.append(result)
+                            print(f"🔧 Tool result: {result}")
+                        else:
+                            # Handle other tool calls if any
+                            print(f"🔧 Unknown tool: {tool_call['name']}")
+                            tool_results.append(f"Unknown tool: {tool_call['name']}")
+                    
+                    # Add tool results to the response
+                    if tool_results:
+                        response.content += f"\n\nTool Results:\n" + "\n".join(tool_results)
+                else:
+                    print("🔧 No tool calls detected in response")
+            except Exception as e:
+                print(f"❌ Error in tool calling: {str(e)}")
+                # Fallback to regular response without tools
+                response = self.llm.invoke(llm_messages)
         else:
             response = self.llm.invoke(llm_messages)
         

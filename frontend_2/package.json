@@ -18,6 +18,7 @@
     "katex": "^0.16.22",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-ipynb-renderer": "^2.3.0",
     "react-katex": "^3.1.0",
     "react-scripts": "5.0.1",
     "thebe": "^0.9.3",
