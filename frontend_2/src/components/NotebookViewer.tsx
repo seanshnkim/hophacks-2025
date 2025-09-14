@@ -81,10 +81,18 @@ const NotebookViewer: React.FC<NotebookViewerProps> = ({
             const pyodideInstance = await window.loadPyodide({
               indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/',
             });
+            
+            // Install commonly used packages automatically
+            console.log('Installing common packages (numpy, pandas, matplotlib)...');
+            await pyodideInstance.loadPackage("micropip");
+            const micropip = pyodideInstance.pyimport("micropip");
+            await micropip.install(["numpy", "pandas", "matplotlib", "scipy", "scikit-learn"]);
+            console.log('Packages installed successfully');
+            
             setPyodide(pyodideInstance);
             pyodideRef.current = pyodideInstance;
             setIsPyodideLoading(false);
-            console.log('Pyodide loaded successfully');
+            console.log('Pyodide loaded successfully with data science packages');
           } catch (error) {
             console.error('Failed to initialize Pyodide:', error);
             setIsPyodideLoading(false);
@@ -214,31 +222,128 @@ const NotebookViewer: React.FC<NotebookViewerProps> = ({
 
   const renderMarkdown = (source: string[]) => {
     const content = source.join('');
+    
+    // Enhanced markdown parsing
+    let html = content
+      // Headers (handle all 6 levels)
+      .replace(/^###### (.*$)/gim, '<h6>$1</h6>')
+      .replace(/^##### (.*$)/gim, '<h5>$1</h5>')
+      .replace(/^#### (.*$)/gim, '<h4>$1</h4>')
+      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+      .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+      
+      // Code blocks (triple backticks)
+      .replace(/```(.*?)\n([\s\S]*?)\n```/g, '<pre><code>$2</code></pre>')
+      
+      // Horizontal rules
+      .replace(/^---$/gim, '<hr>')
+      .replace(/^___$/gim, '<hr>')
+      
+      // Bold and italic (order matters!)
+      .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/_{3}(.*?)_{3}/g, '<strong><em>$1</em></strong>')
+      .replace(/_{2}(.*?)_{2}/g, '<strong>$1</strong>')
+      .replace(/_(.*?)_/g, '<em>$1</em>')
+      
+      // Inline code
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      
+      // Links
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+      
+      // Blockquotes
+      .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+      
+      // Lists
+      .replace(/^\s*[\*\-\+] (.+$)/gim, '<li>$1</li>')
+      .replace(/^\s*\d+\. (.+$)/gim, '<li>$1</li>');
+    
+    // Wrap consecutive <li> elements in <ul>
+    html = html.replace(/(<li>.*<\/li>)(\s*<li>.*<\/li>)*/g, '<ul>$&</ul>');
+    
+    // Handle paragraphs
+    const paragraphs = html.split(/\n\s*\n/);
+    html = paragraphs.map(para => {
+      para = para.trim();
+      if (!para) return '';
+      
+      // Don't wrap if already wrapped in block elements
+      if (para.match(/^<(h[1-6]|blockquote|pre|hr|ul|ol|li)/i)) {
+        return para;
+      }
+      
+      // Replace single newlines with <br> within paragraphs
+      para = para.replace(/\n/g, '<br>');
+      return `<p>${para}</p>`;
+    }).join('');
+
     return (
       <Box
         sx={{
-          '& h1': { fontSize: '1.5rem', fontWeight: 'bold', mb: 2, color: 'primary.main' },
-          '& h2': { fontSize: '1.3rem', fontWeight: 'bold', mb: 1.5, color: 'text.primary' },
-          '& h3': { fontSize: '1.1rem', fontWeight: 'bold', mb: 1, color: 'text.primary' },
-          '& p': { mb: 1.5, lineHeight: 1.6 },
-          '& ul': { mb: 1.5, pl: 2 },
-          '& li': { mb: 0.5 },
+          '& h1': { 
+            fontSize: '2rem', 
+            fontWeight: 600, 
+            mb: 2, 
+            color: 'text.primary',
+            borderBottom: '1px solid #e1e5e9',
+            pb: 1 
+          },
+          '& h2': { fontSize: '1.6rem', fontWeight: 600, mb: 1.5, color: 'text.primary', mt: 3 },
+          '& h3': { fontSize: '1.4rem', fontWeight: 600, mb: 1, color: 'text.primary', mt: 2.5 },
+          '& h4': { fontSize: '1.2rem', fontWeight: 600, mb: 1, color: 'text.primary', mt: 2 },
+          '& h5': { fontSize: '1.1rem', fontWeight: 600, mb: 1, color: 'text.primary', mt: 1.5 },
+          '& h6': { fontSize: '1rem', fontWeight: 600, mb: 1, color: 'text.primary', mt: 1.5 },
+          '& p': { mb: 2, lineHeight: 1.6, color: 'text.primary' },
+          '& ul, & ol': { mb: 2, pl: 3 },
+          '& li': { mb: 0.5, lineHeight: 1.5 },
           '& code': { 
-            backgroundColor: '#f5f5f5', 
-            padding: '2px 4px', 
-            borderRadius: '3px',
-            fontFamily: 'monospace',
-            fontSize: '0.9em'
+            backgroundColor: '#f6f8fa', 
+            padding: '2px 6px', 
+            borderRadius: '6px',
+            fontFamily: 'Monaco, Consolas, "SF Mono", "Courier New", monospace',
+            fontSize: '0.85em',
+            color: '#d73a49',
+            border: '1px solid #e1e5e9'
           },
           '& pre': {
-            backgroundColor: '#f5f5f5',
-            padding: '12px',
-            borderRadius: '4px',
+            backgroundColor: '#f6f8fa',
+            padding: '16px',
+            borderRadius: '6px',
             overflow: 'auto',
             mb: 2,
+            border: '1px solid #e1e5e9',
+            '& code': {
+              backgroundColor: 'transparent',
+              padding: 0,
+              color: 'inherit',
+              border: 'none'
+            }
           },
+          '& blockquote': {
+            borderLeft: '4px solid #0969da',
+            pl: 2,
+            ml: 0,
+            mb: 2,
+            color: 'text.secondary',
+            fontStyle: 'italic'
+          },
+          '& strong': { fontWeight: 600 },
+          '& em': { fontStyle: 'italic' },
+          '& a': { 
+            color: '#0969da', 
+            textDecoration: 'none',
+            '&:hover': { textDecoration: 'underline' }
+          },
+          '& hr': {
+            border: 'none',
+            borderTop: '1px solid #e1e5e9',
+            my: 3
+          }
         }}
-        dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br/>') }}
+        dangerouslySetInnerHTML={{ __html: html }}
       />
     );
   };
@@ -438,7 +543,7 @@ const NotebookViewer: React.FC<NotebookViewerProps> = ({
 
           {isPyodideLoading && (
             <Alert severity="info" sx={{ mb: 2 }}>
-              Loading Python runtime...
+              Loading Python runtime and installing packages (numpy, pandas, matplotlib)... This may take a moment.
             </Alert>
           )}
 

@@ -166,6 +166,117 @@
             color: #155724;
         }
         
+        .markdown-cell .code-editor {
+            background: #f8f9fa;
+            border: 1px dashed #ced4da;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .markdown-rendered {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e1e5e9;
+            line-height: 1.6;
+        }
+        
+        .markdown-rendered h1, .markdown-rendered h2, .markdown-rendered h3, .markdown-rendered h4, .markdown-rendered h5, .markdown-rendered h6 {
+            margin-top: 24px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+        
+        .markdown-rendered h1:first-child, .markdown-rendered h2:first-child, .markdown-rendered h3:first-child {
+            margin-top: 0;
+        }
+        
+        .markdown-rendered h1 { font-size: 2rem; border-bottom: 1px solid #e1e5e9; padding-bottom: 8px; }
+        .markdown-rendered h2 { font-size: 1.6rem; }
+        .markdown-rendered h3 { font-size: 1.4rem; }
+        .markdown-rendered h4 { font-size: 1.2rem; }
+        .markdown-rendered h5 { font-size: 1.1rem; }
+        .markdown-rendered h6 { font-size: 1rem; }
+        
+        .markdown-rendered p {
+            margin-bottom: 16px;
+        }
+        
+        .markdown-rendered ul, .markdown-rendered ol {
+            margin-bottom: 16px;
+            padding-left: 30px;
+        }
+        
+        .markdown-rendered li {
+            margin-bottom: 4px;
+        }
+        
+        .markdown-rendered code {
+            background: #f6f8fa;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Consolas', 'SF Mono', 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #d73a49;
+        }
+        
+        .markdown-rendered pre {
+            background: #f6f8fa;
+            padding: 16px;
+            border-radius: 6px;
+            overflow-x: auto;
+            border: 1px solid #e1e5e9;
+            font-family: 'Monaco', 'Consolas', 'SF Mono', 'Courier New', monospace;
+            font-size: 0.85em;
+            line-height: 1.45;
+        }
+        
+        .markdown-rendered pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        .markdown-rendered blockquote {
+            border-left: 4px solid #0969da;
+            padding-left: 16px;
+            margin-left: 0;
+            margin-bottom: 16px;
+            color: #656d76;
+            font-style: italic;
+        }
+        
+        .markdown-rendered strong {
+            font-weight: 600;
+        }
+        
+        .markdown-rendered em {
+            font-style: italic;
+        }
+        
+        .markdown-rendered a {
+            color: #0969da;
+            text-decoration: none;
+        }
+        
+        .markdown-rendered a:hover {
+            text-decoration: underline;
+        }
+        
+        .markdown-rendered hr {
+            border: none;
+            border-top: 1px solid #e1e5e9;
+            margin: 24px 0;
+        }
+        
+        .cell-type-selector {
+            margin-right: 10px;
+            padding: 4px 8px;
+            border: 1px solid #ced4da;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            background: white;
+        }
+        
         .status-bar {
             background: #28a745;
             color: white;
@@ -216,45 +327,18 @@
     </div>
     
     <div class="controls">
-        <button onclick="addCodeCell()" id="add-cell-btn" disabled>➕ Add Cell</button>
+        <button onclick="addCodeCell()" id="add-cell-btn" disabled>➕ Add Code Cell</button>
+        <button onclick="addMarkdownCell()" id="add-markdown-btn" disabled>📝 Add Markdown Cell</button>
         <button onclick="runAllCells()" class="success" id="run-all-btn" disabled>▶️ Run All</button>
         <button onclick="addPackageDemo()" class="warning" id="package-btn" disabled>📦 Package Demo</button>
         <button onclick="downloadNotebook()" id="download-btn" disabled>💾 Download .ipynb</button>
+        <button onclick="document.getElementById('import-file').click()" id="import-btn" disabled>📁 Import .ipynb</button>
         <button onclick="clearAllOutputs()">🧹 Clear Outputs</button>
+        <input type="file" id="import-file" accept=".ipynb" style="display: none;" onchange="importNotebook(event)">
     </div>
     
     <div class="notebook-container">
-        <!-- Demo Cell 1 -->
-        <div class="cell" id="cell-1">
-            <div class="cell-header">
-                📝 Cell 1 - Welcome Demo
-            </div>
-            <div class="cell-content">
-                <textarea class="code-editor"># 🎉 Welcome to Fast Python Notebook!
-# This runs entirely in your browser with Pyodide
-
-import sys
-import datetime
-import platform
-
-print("🐍 Python Environment Ready!")
-print(f"Python version: {sys.version}")
-print(f"Platform: {platform.platform()}")
-print(f"Current time: {datetime.datetime.now()}")
-
-# Basic calculations
-x = [1, 2, 3, 4, 5]
-y = [i**2 for i in x]
-print(f"Squares: {y}")
-
-print("\n✅ Everything working! Add more cells below.")</textarea>
-                <div class="cell-controls">
-                    <button class="run-button" onclick="runCell('cell-1')">▶️ Run</button>
-                    <span style="margin-left: auto; font-size: 0.7rem; color: #6c757d;">Shift+Enter to run</span>
-                </div>
-                <div class="cell-output" id="output-1"></div>
-            </div>
-        </div>
+    <!-- Cells will be dynamically created here -->
     </div>
 
     <script>
@@ -280,14 +364,21 @@ print("\n✅ Everything working! Add more cells below.")</textarea>
                 // Install micropip for package management
                 await pyodide.loadPackage("micropip");
                 
+                // Install commonly used data science packages
+                statusBar.innerHTML = '<span class="loading-spinner"></span>Installing common packages (numpy, matplotlib, pandas)...';
+                const micropip = pyodide.pyimport("micropip");
+                await micropip.install(["numpy", "pandas", "matplotlib", "scipy", "scikit-learn"]);
+                
                 statusBar.className = 'status-bar';
-                statusBar.textContent = '✅ Python ready! You can now run cells and install packages.';
+                statusBar.textContent = '✅ Python ready with numpy, pandas, matplotlib! You can now run cells.';
                 
                 // Enable buttons
                 document.getElementById('add-cell-btn').disabled = false;
+                document.getElementById('add-markdown-btn').disabled = false;
                 document.getElementById('run-all-btn').disabled = false;
                 document.getElementById('package-btn').disabled = false;
                 document.getElementById('download-btn').disabled = false;
+                document.getElementById('import-btn').disabled = false;
                 
                 isReady = true;
                 console.log('🎉 Pyodide ready!');
@@ -304,6 +395,14 @@ print("\n✅ Everything working! Add more cells below.")</textarea>
         
         // Run a specific cell
         async function runCell(cellId) {
+            const cell = document.getElementById(cellId);
+            const cellType = cell.classList.contains('markdown-cell') ? 'markdown' : 'code';
+            
+            if (cellType === 'markdown') {
+                renderMarkdownCell(cellId);
+                return;
+            }
+            
             if (!isReady) {
                 alert('⏳ Python is still loading. Please wait a moment...');
                 return;
@@ -380,6 +479,93 @@ sys.stderr = old_stderr
             }
         }
         
+        // Render markdown cell with enhanced parsing
+        function renderMarkdownCell(cellId) {
+            const codeEditor = document.querySelector(`#${cellId} .code-editor`);
+            const output = document.getElementById(`output-${cellId.split('-')[1]}`);
+            
+            const markdown = codeEditor.value.trim();
+            if (!markdown) return;
+            
+            // Enhanced markdown renderer
+            let html = markdown
+                // Headers (handle all 6 levels)
+                .replace(/^###### (.*$)/gim, '<h6>$1</h6>')
+                .replace(/^##### (.*$)/gim, '<h5>$1</h5>')
+                .replace(/^#### (.*$)/gim, '<h4>$1</h4>')
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                
+                // Code blocks (triple backticks)
+                .replace(/```(.*?)\n([\s\S]*?)\n```/g, '<pre><code>$2</code></pre>')
+                
+                // Horizontal rules
+                .replace(/^---$/gim, '<hr>')
+                .replace(/^___$/gim, '<hr>')
+                
+                // Bold and italic (order matters!)
+                .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/_{3}(.*?)_{3}/g, '<strong><em>$1</em></strong>')
+                .replace(/_{2}(.*?)_{2}/g, '<strong>$1</strong>')
+                .replace(/_(.*?)_/g, '<em>$1</em>')
+                
+                // Inline code
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                
+                // Links
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+                
+                // Blockquotes
+                .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+                
+                // Unordered lists
+                .replace(/^\s*[\*\-\+] (.+$)/gim, '<li>$1</li>')
+                
+                // Ordered lists  
+                .replace(/^\s*\d+\. (.+$)/gim, '<li>$1</li>');
+            
+            // Wrap consecutive <li> elements in <ul> or <ol>
+            html = html.replace(/(<li>.*<\/li>)(\s*<li>.*<\/li>)*/g, function(match) {
+                // Check if this looks like an ordered list (contains numbers)
+                const isOrdered = /^\s*\d+\./.test(markdown.split('\n').find(line => 
+                    line.trim().startsWith('1.') || line.trim().match(/^\d+\./)
+                ));
+                const listTag = isOrdered ? 'ol' : 'ul';
+                return `<${listTag}>${match}</${listTag}>`;
+            });
+            
+            // Handle paragraphs (split by double newlines)
+            const paragraphs = html.split(/\n\s*\n/);
+            html = paragraphs.map(para => {
+                para = para.trim();
+                if (!para) return '';
+                
+                // Don't wrap if already wrapped in block elements
+                if (para.match(/^<(h[1-6]|blockquote|pre|hr|ul|ol|li)/i)) {
+                    return para;
+                }
+                
+                // Replace single newlines with <br> within paragraphs
+                para = para.replace(/\n/g, '<br>');
+                return `<p>${para}</p>`;
+            }).join('');
+            
+            // Clean up any empty paragraphs or double-wrapped elements
+            html = html
+                .replace(/<p><\/p>/g, '')
+                .replace(/<p>(<h[1-6]>.*?<\/h[1-6]>)<\/p>/gi, '$1')
+                .replace(/<p>(<blockquote>.*?<\/blockquote>)<\/p>/gi, '$1')
+                .replace(/<p>(<hr>)<\/p>/gi, '$1')
+                .replace(/<p>(<ul>.*?<\/ul>)<\/p>/gi, '$1')
+                .replace(/<p>(<ol>.*?<\/ol>)<\/p>/gi, '$1');
+            
+            output.innerHTML = html;
+            output.className = 'cell-output visible markdown-rendered';
+        }
+        
         // Add a new code cell
         function addCodeCell(code = '') {
             cellCounter++;
@@ -396,15 +582,19 @@ print(f"Square root of 16: {result}")
 # Your code here...`;
             
             const cellDiv = document.createElement('div');
-            cellDiv.className = 'cell';
+            cellDiv.className = 'cell code-cell';
             cellDiv.id = `cell-${cellCounter}`;
             cellDiv.innerHTML = `
                 <div class="cell-header">
-                    📝 Cell ${cellCounter} - Custom Code
+                    📝 Cell ${cellCounter} - Python Code
                 </div>
                 <div class="cell-content">
                     <textarea class="code-editor">${defaultCode}</textarea>
                     <div class="cell-controls">
+                        <select class="cell-type-selector" onchange="changeCellType('cell-${cellCounter}', this.value)">
+                            <option value="code" selected>Code</option>
+                            <option value="markdown">Markdown</option>
+                        </select>
                         <button class="run-button" onclick="runCell('cell-${cellCounter}')">▶️ Run</button>
                         <button onclick="deleteCell('cell-${cellCounter}')" style="background: #dc3545; font-size: 0.7rem; padding: 4px 8px;">🗑️</button>
                         <span style="margin-left: auto; font-size: 0.7rem; color: #6c757d;">Cell ${cellCounter}</span>
@@ -414,6 +604,87 @@ print(f"Square root of 16: {result}")
             `;
             
             container.appendChild(cellDiv);
+        }
+        
+        // Add a new markdown cell
+        function addMarkdownCell() {
+            cellCounter++;
+            const container = document.querySelector('.notebook-container');
+            
+            const defaultMarkdown = `# Markdown Cell ${cellCounter}
+
+This is a **markdown cell**. You can write:
+
+- *Italic text* with single asterisks
+- **Bold text** with double asterisks  
+- \`inline code\` with backticks
+- Headers with # symbols
+
+> This is a blockquote
+
+### Subsection
+Write your documentation here...`;
+            
+            const cellDiv = document.createElement('div');
+            cellDiv.className = 'cell markdown-cell';
+            cellDiv.id = `cell-${cellCounter}`;
+            cellDiv.innerHTML = `
+                <div class="cell-header">
+                    📄 Cell ${cellCounter} - Markdown
+                </div>
+                <div class="cell-content">
+                    <textarea class="code-editor">${defaultMarkdown}</textarea>
+                    <div class="cell-controls">
+                        <select class="cell-type-selector" onchange="changeCellType('cell-${cellCounter}', this.value)">
+                            <option value="code">Code</option>
+                            <option value="markdown" selected>Markdown</option>
+                        </select>
+                        <button class="run-button" onclick="runCell('cell-${cellCounter}')">📝 Render</button>
+                        <button onclick="deleteCell('cell-${cellCounter}')" style="background: #dc3545; font-size: 0.7rem; padding: 4px 8px;">🗑️</button>
+                        <span style="margin-left: auto; font-size: 0.7rem; color: #6c757d;">Cell ${cellCounter}</span>
+                    </div>
+                    <div class="cell-output" id="output-${cellCounter}"></div>
+                </div>
+            `;
+            
+            container.appendChild(cellDiv);
+        }
+        
+        // Change cell type
+        function changeCellType(cellId, newType) {
+            const cell = document.getElementById(cellId);
+            const header = cell.querySelector('.cell-header');
+            const runButton = cell.querySelector('.run-button');
+            const codeEditor = cell.querySelector('.code-editor');
+            const output = cell.querySelector('.cell-output');
+            
+            // Clear output when changing type
+            output.classList.remove('visible');
+            output.innerHTML = '';
+            output.className = 'cell-output';
+            
+            if (newType === 'markdown') {
+                cell.className = 'cell markdown-cell';
+                header.textContent = `📄 Cell ${cellId.split('-')[1]} - Markdown`;
+                runButton.textContent = '📝 Render';
+                
+                // Convert Python comments to markdown if switching from code
+                if (codeEditor.value.includes('#') && !codeEditor.value.includes('**')) {
+                    const content = codeEditor.value.replace(/^# /gm, '## ');
+                    if (content !== codeEditor.value) {
+                        codeEditor.value = content;
+                    }
+                }
+            } else {
+                cell.className = 'cell code-cell';
+                header.textContent = `📝 Cell ${cellId.split('-')[1]} - Python Code`;
+                runButton.textContent = '▶️ Run';
+                
+                // Add Python comment if switching from markdown
+                if (!codeEditor.value.includes('print') && codeEditor.value.includes('#')) {
+                    codeEditor.value = `# ${codeEditor.value}\nprint("Converted from markdown")`;
+                }
+            }
         }
         
         // Add package installation demo
@@ -489,18 +760,27 @@ print("\\n🎉 Packages ready! You can now use numpy and matplotlib.")`;
             cells.forEach(cell => {
                 const code = cell.querySelector('.code-editor').value;
                 const output = cell.querySelector('.cell-output');
+                const isMarkdown = cell.classList.contains('markdown-cell');
                 
-                notebookCells.push({
-                    "cell_type": "code",
-                    "execution_count": null,
-                    "metadata": {},
-                    "outputs": output.textContent ? [{
-                        "name": "stdout",
-                        "output_type": "stream",
-                        "text": [output.textContent]
-                    }] : [],
-                    "source": code.split('\n').map(line => line + '\n')
-                });
+                if (isMarkdown) {
+                    notebookCells.push({
+                        "cell_type": "markdown",
+                        "metadata": {},
+                        "source": code.split('\n').map(line => line + '\n')
+                    });
+                } else {
+                    notebookCells.push({
+                        "cell_type": "code",
+                        "execution_count": null,
+                        "metadata": {},
+                        "outputs": output.textContent ? [{
+                            "name": "stdout",
+                            "output_type": "stream",
+                            "text": [output.textContent]
+                        }] : [],
+                        "source": code.split('\n').map(line => line + '\n')
+                    });
+                }
             });
             
             const notebook = {
@@ -531,6 +811,133 @@ print("\\n🎉 Packages ready! You can now use numpy and matplotlib.")`;
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        }
+        
+        // Import notebook
+        async function importNotebook(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validate file type
+            if (!file.name.endsWith('.ipynb')) {
+                alert('❌ Please select a .ipynb file');
+                return;
+            }
+            
+            try {
+                const text = await file.text();
+                const notebook = JSON.parse(text);
+                
+                // Validate notebook format
+                if (!notebook.cells || !Array.isArray(notebook.cells)) {
+                    alert('❌ Invalid notebook format: No cells found');
+                    return;
+                }
+                
+                // Confirm before clearing existing cells
+                if (document.querySelectorAll('.cell').length > 0) {
+                    if (!confirm('⚠️ This will replace all existing cells. Continue?')) {
+                        return;
+                    }
+                }
+                
+                // Clear existing cells
+                clearAllCells();
+                
+                // Import cells
+                const container = document.querySelector('.notebook-container');
+                cellCounter = 0;
+                
+                notebook.cells.forEach((cellData, index) => {
+                    cellCounter++;
+                    
+                    const isMarkdown = cellData.cell_type === 'markdown';
+                    const source = Array.isArray(cellData.source) 
+                        ? cellData.source.join('') 
+                        : cellData.source || '';
+                    
+                    const cellDiv = document.createElement('div');
+                    cellDiv.className = isMarkdown ? 'cell markdown-cell' : 'cell code-cell';
+                    cellDiv.id = `cell-${cellCounter}`;
+                    
+                    const cellTypeLabel = isMarkdown ? 'Markdown' : 'Python Code';
+                    const cellIcon = isMarkdown ? '📄' : '📝';
+                    const runButtonText = isMarkdown ? '📝 Render' : '▶️ Run';
+                    
+                    cellDiv.innerHTML = `
+                        <div class="cell-header">
+                            ${cellIcon} Cell ${cellCounter} - ${cellTypeLabel}
+                        </div>
+                        <div class="cell-content">
+                            <textarea class="code-editor">${source}</textarea>
+                            <div class="cell-controls">
+                                <select class="cell-type-selector" onchange="changeCellType('cell-${cellCounter}', this.value)">
+                                    <option value="code" ${!isMarkdown ? 'selected' : ''}>Code</option>
+                                    <option value="markdown" ${isMarkdown ? 'selected' : ''}>Markdown</option>
+                                </select>
+                                <button class="run-button" onclick="runCell('cell-${cellCounter}')">${runButtonText}</button>
+                                <button onclick="deleteCell('cell-${cellCounter}')" style="background: #dc3545; font-size: 0.7rem; padding: 4px 8px;">🗑️</button>
+                                <span style="margin-left: auto; font-size: 0.7rem; color: #6c757d;">Cell ${cellCounter}</span>
+                            </div>
+                            <div class="cell-output" id="output-${cellCounter}"></div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(cellDiv);
+                    
+                    // If cell has outputs and it's a code cell, display them
+                    if (!isMarkdown && cellData.outputs && cellData.outputs.length > 0) {
+                        const outputDiv = document.getElementById(`output-${cellCounter}`);
+                        let outputText = '';
+                        
+                        cellData.outputs.forEach(output => {
+                            if (output.output_type === 'stream' && output.text) {
+                                outputText += Array.isArray(output.text) 
+                                    ? output.text.join('') 
+                                    : output.text;
+                            } else if (output.output_type === 'execute_result' && output.data && output.data['text/plain']) {
+                                outputText += Array.isArray(output.data['text/plain']) 
+                                    ? output.data['text/plain'].join('') 
+                                    : output.data['text/plain'];
+                            } else if (output.output_type === 'error') {
+                                outputText += `Error: ${output.ename}: ${output.evalue}\n`;
+                            }
+                        });
+                        
+                        if (outputText) {
+                            outputDiv.textContent = outputText;
+                            outputDiv.className = 'cell-output visible success';
+                        }
+                    }
+                });
+                
+                // Success message
+                const statusBar = document.getElementById('status-bar');
+                const originalContent = statusBar.innerHTML;
+                statusBar.className = 'status-bar';
+                statusBar.textContent = `✅ Imported ${notebook.cells.length} cells from ${file.name}`;
+                
+                // Reset status after 3 seconds
+                setTimeout(() => {
+                    statusBar.innerHTML = originalContent;
+                }, 3000);
+                
+                console.log(`📁 Imported notebook: ${file.name} with ${notebook.cells.length} cells`);
+                
+            } catch (error) {
+                alert(`❌ Failed to import notebook: ${error.message}`);
+                console.error('Import error:', error);
+            } finally {
+                // Reset file input
+                event.target.value = '';
+            }
+        }
+        
+        // Clear all cells (helper function for import)
+        function clearAllCells() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => cell.remove());
+            cellCounter = 0;
         }
         
         // Keyboard shortcuts
