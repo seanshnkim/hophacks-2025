@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Fast Python Browser Notebook - No Servers!</title>
+    
+    <!-- Pyodide - Pure browser Python -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    
+    <style>
+        /* Professional Jupyter-like styling */
+        body {
+            background-color: #ffffff;
+            color: #212529;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            background: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+        
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .success { background: #28a745; }
+        .success:hover { background: #1e7e34; }
+        
+        .warning { background: #ffc107; color: #212529; }
+        .warning:hover { background: #d39e00; }
+        
+        .notebook-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .cell {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            margin: 16px 0;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .cell-header {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            font-size: 0.8rem;
+            color: #495057;
+            border-bottom: 1px solid #e1e5e9;
+            font-weight: 500;
+        }
+        
+        .cell-content {
+            position: relative;
+        }
+        
+        .code-editor {
+            width: 100%;
+            min-height: 120px;
+            border: none;
+            padding: 15px;
+            font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            background: #fafafa;
+            resize: vertical;
+            outline: none;
+        }
+        
+        .code-editor:focus {
+            background: #fff;
+        }
+        
+        .cell-controls {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #e1e5e9;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .run-button {
+            background: #28a745;
+            font-size: 0.8rem;
+            padding: 6px 12px;
+        }
+        
+        .run-button:hover {
+            background: #1e7e34;
+        }
+        
+        .cell-output {
+            background: #fff;
+            border-top: 1px solid #e1e5e9;
+            padding: 15px;
+            font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .cell-output.visible {
+            display: block;
+        }
+        
+        .cell-output.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .cell-output.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-bar {
+            background: #28a745;
+            color: white;
+            padding: 8px 20px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        .status-bar.loading {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .status-bar.error {
+            background: #dc3545;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #ffffff33;
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>🚀 Fast Python Browser Notebook</h1>
+        <p class="subtitle">⚡ Powered by Pyodide - Loads in 3 seconds, runs entirely in your browser</p>
+    </div>
+    
+    <div class="status-bar loading" id="status-bar">
+        <span class="loading-spinner"></span>
+        Loading Python environment...
+    </div>
+    
+    <div class="controls">
+        <button onclick="addCodeCell()" id="add-cell-btn" disabled>➕ Add Cell</button>
+        <button onclick="runAllCells()" class="success" id="run-all-btn" disabled>▶️ Run All</button>
+        <button onclick="addPackageDemo()" class="warning" id="package-btn" disabled>📦 Package Demo</button>
+        <button onclick="downloadNotebook()" id="download-btn" disabled>💾 Download .ipynb</button>
+        <button onclick="clearAllOutputs()">🧹 Clear Outputs</button>
+    </div>
+    
+    <div class="notebook-container">
+        <!-- Demo Cell 1 -->
+        <div class="cell" id="cell-1">
+            <div class="cell-header">
+                📝 Cell 1 - Welcome Demo
+            </div>
+            <div class="cell-content">
+                <textarea class="code-editor"># 🎉 Welcome to Fast Python Notebook!
+# This runs entirely in your browser with Pyodide
+
+import sys
+import datetime
+import platform
+
+print("🐍 Python Environment Ready!")
+print(f"Python version: {sys.version}")
+print(f"Platform: {platform.platform()}")
+print(f"Current time: {datetime.datetime.now()}")
+
+# Basic calculations
+x = [1, 2, 3, 4, 5]
+y = [i**2 for i in x]
+print(f"Squares: {y}")
+
+print("\n✅ Everything working! Add more cells below.")</textarea>
+                <div class="cell-controls">
+                    <button class="run-button" onclick="runCell('cell-1')">▶️ Run</button>
+                    <span style="margin-left: auto; font-size: 0.7rem; color: #6c757d;">Shift+Enter to run</span>
+                </div>
+                <div class="cell-output" id="output-1"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let pyodide;
+        let cellCounter = 1;
+        let isReady = false;
+        
+        // Initialize Pyodide
+        async function initPyodide() {
+            const statusBar = document.getElementById('status-bar');
+            
+            try {
+                statusBar.innerHTML = '<span class="loading-spinner"></span>Loading Pyodide (this may take a moment)...';
+                
+                // Load Pyodide
+                pyodide = await loadPyodide({
+                    stdout: (text) => console.log('Python:', text),
+                    stderr: (text) => console.error('Python Error:', text)
+                });
+                
+                statusBar.innerHTML = '<span class="loading-spinner"></span>Installing micropip for package management...';
+                
+                // Install micropip for package management
+                await pyodide.loadPackage("micropip");
+                
+                statusBar.className = 'status-bar';
+                statusBar.textContent = '✅ Python ready! You can now run cells and install packages.';
+                
+                // Enable buttons
+                document.getElementById('add-cell-btn').disabled = false;
+                document.getElementById('run-all-btn').disabled = false;
+                document.getElementById('package-btn').disabled = false;
+                document.getElementById('download-btn').disabled = false;
+                
+                isReady = true;
+                console.log('🎉 Pyodide ready!');
+                
+                // Auto-run first cell as demo
+                setTimeout(() => runCell('cell-1'), 1000);
+                
+            } catch (error) {
+                statusBar.className = 'status-bar error';
+                statusBar.textContent = `❌ Failed to load Python: ${error.message}`;
+                console.error('Pyodide initialization failed:', error);
+            }
+        }
+        
+        // Run a specific cell
+        async function runCell(cellId) {
+            if (!isReady) {
+                alert('⏳ Python is still loading. Please wait a moment...');
+                return;
+            }
+            
+            const codeEditor = document.querySelector(`#${cellId} .code-editor`);
+            const output = document.getElementById(`output-${cellId.split('-')[1]}`);
+            const runButton = document.querySelector(`#${cellId} .run-button`);
+            
+            const code = codeEditor.value.trim();
+            if (!code) return;
+            
+            // Show output area
+            output.classList.add('visible');
+            output.textContent = 'Running...';
+            output.className = 'cell-output visible';
+            
+            // Disable button during execution
+            runButton.disabled = true;
+            runButton.textContent = '⏳ Running...';
+            
+            try {
+                // Capture stdout
+                let stdout = [];
+                let stderr = [];
+                
+                pyodide.runPython(`
+import sys
+from io import StringIO
+
+# Capture stdout
+old_stdout = sys.stdout
+old_stderr = sys.stderr
+sys.stdout = StringIO()
+sys.stderr = StringIO()
+`);
+                
+                // Run the user code
+                const result = pyodide.runPython(code);
+                
+                // Get captured output
+                const capturedStdout = pyodide.runPython("sys.stdout.getvalue()");
+                const capturedStderr = pyodide.runPython("sys.stderr.getvalue()");
+                
+                // Restore stdout
+                pyodide.runPython(`
+sys.stdout = old_stdout
+sys.stderr = old_stderr
+`);
+                
+                // Display results
+                let outputText = '';
+                if (capturedStdout) outputText += capturedStdout;
+                if (capturedStderr) outputText += 'STDERR:\n' + capturedStderr;
+                if (result !== undefined && result !== null && !capturedStdout) {
+                    outputText += String(result);
+                }
+                
+                if (!outputText.trim()) {
+                    outputText = '✅ Code executed successfully (no output)';
+                }
+                
+                output.textContent = outputText;
+                output.className = 'cell-output visible success';
+                
+            } catch (error) {
+                output.textContent = `❌ Error: ${error.message}`;
+                output.className = 'cell-output visible error';
+                console.error('Cell execution error:', error);
+            } finally {
+                // Re-enable button
+                runButton.disabled = false;
+                runButton.textContent = '▶️ Run';
+            }
+        }
+        
+        // Add a new code cell
+        function addCodeCell(code = '') {
+            cellCounter++;
+            const container = document.querySelector('.notebook-container');
+            
+            const defaultCode = code || `# Cell ${cellCounter} - Your Python code here
+print(f"Hello from Cell ${cellCounter}!")
+
+# Example: Basic math
+import math
+result = math.sqrt(16)
+print(f"Square root of 16: {result}")
+
+# Your code here...`;
+            
+            const cellDiv = document.createElement('div');
+            cellDiv.className = 'cell';
+            cellDiv.id = `cell-${cellCounter}`;
+            cellDiv.innerHTML = `
+                <div class="cell-header">
+                    📝 Cell ${cellCounter} - Custom Code
+                </div>
+                <div class="cell-content">
+                    <textarea class="code-editor">${defaultCode}</textarea>
+                    <div class="cell-controls">
+                        <button class="run-button" onclick="runCell('cell-${cellCounter}')">▶️ Run</button>
+                        <button onclick="deleteCell('cell-${cellCounter}')" style="background: #dc3545; font-size: 0.7rem; padding: 4px 8px;">🗑️</button>
+                        <span style="margin-left: auto; font-size: 0.7rem; color: #6c757d;">Cell ${cellCounter}</span>
+                    </div>
+                    <div class="cell-output" id="output-${cellCounter}"></div>
+                </div>
+            `;
+            
+            container.appendChild(cellDiv);
+        }
+        
+        // Add package installation demo
+        function addPackageDemo() {
+            const demoCode = `# 📦 Package Installation Demo with micropip
+import micropip
+import js
+
+print("🔄 Installing numpy...")
+await micropip.install("numpy")
+
+import numpy as np
+print(f"✅ NumPy installed! Version: {np.__version__}")
+
+# Test numpy
+arr = np.array([1, 2, 3, 4, 5])
+print(f"Array: {arr}")
+print(f"Sum: {arr.sum()}")
+print(f"Mean: {arr.mean()}")
+
+# Install more packages
+print("\\n🔄 Installing matplotlib...")
+await micropip.install("matplotlib")
+
+import matplotlib.pyplot as plt
+print("✅ Matplotlib ready!")
+
+# Note: For plots, you'll need additional setup for browser display
+print("\\n🎉 Packages ready! You can now use numpy and matplotlib.")`;
+            
+            addCodeCell(demoCode);
+        }
+        
+        // Run all cells
+        async function runAllCells() {
+            const cells = document.querySelectorAll('.cell');
+            
+            for (let i = 0; i < cells.length; i++) {
+                const cell = cells[i];
+                const cellId = cell.id;
+                
+                console.log(`Running ${cellId}...`);
+                await runCell(cellId);
+                
+                // Small delay between cells
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+        
+        // Delete cell
+        function deleteCell(cellId) {
+            const cell = document.getElementById(cellId);
+            if (cell && confirm('Delete this cell?')) {
+                cell.remove();
+            }
+        }
+        
+        // Clear all outputs
+        function clearAllOutputs() {
+            const outputs = document.querySelectorAll('.cell-output');
+            outputs.forEach(output => {
+                output.classList.remove('visible');
+                output.textContent = '';
+                output.className = 'cell-output';
+            });
+        }
+        
+        // Download notebook
+        function downloadNotebook() {
+            const cells = document.querySelectorAll('.cell');
+            const notebookCells = [];
+            
+            cells.forEach(cell => {
+                const code = cell.querySelector('.code-editor').value;
+                const output = cell.querySelector('.cell-output');
+                
+                notebookCells.push({
+                    "cell_type": "code",
+                    "execution_count": null,
+                    "metadata": {},
+                    "outputs": output.textContent ? [{
+                        "name": "stdout",
+                        "output_type": "stream",
+                        "text": [output.textContent]
+                    }] : [],
+                    "source": code.split('\n').map(line => line + '\n')
+                });
+            });
+            
+            const notebook = {
+                "cells": notebookCells,
+                "metadata": {
+                    "kernelspec": {
+                        "display_name": "Python 3",
+                        "language": "python",
+                        "name": "python3"
+                    },
+                    "language_info": {
+                        "name": "python",
+                        "version": "3.11+"
+                    }
+                },
+                "nbformat": 4,
+                "nbformat_minor": 4
+            };
+            
+            const blob = new Blob([JSON.stringify(notebook, null, 2)], {
+                type: 'application/json'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `fast-notebook-${new Date().toISOString().split('T')[0]}.ipynb`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            // Shift+Enter to run current cell
+            if (event.shiftKey && event.key === 'Enter') {
+                event.preventDefault();
+                
+                // Find which cell the cursor is in
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.classList.contains('code-editor')) {
+                    const cell = activeElement.closest('.cell');
+                    if (cell) {
+                        runCell(cell.id);
+                    }
+                }
+            }
+        });
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initPyodide);
+    </script>
+</body>
+</html>

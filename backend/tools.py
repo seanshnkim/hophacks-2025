@@ -35,6 +35,35 @@ class VisualizationTools:
         except Exception as e:
             print(f"Warning: Could not clean up files: {e}")
     
+    def _fix_common_manim_errors(self, script: str) -> str:
+        """Fix common Manim errors in the script"""
+        # Remove problematic method calls
+        fixes = [
+            # Fix add_coordinate_labels error
+            (r'\.add_coordinate_labels\([^)]*\)', ''),
+            # Fix Image usage
+            (r'Image\([^)]*\)', 'Text("Image placeholder")'),
+            # Fix align_left/align_right/align_center
+            (r'\.align_left\(\)', '.to_edge(LEFT)'),
+            (r'\.align_right\(\)', '.to_edge(RIGHT)'),
+            (r'\.align_center\(\)', '.move_to(ORIGIN)'),
+            # Fix include_numbers parameter
+            (r'include_numbers=True', 'include_numbers=False'),
+            # Fix get_end_point to get_end
+            (r'\.get_end_point\(\)', '.get_end()'),
+            # Remove problematic parameters
+            (r',\s*dx_color=[^,)]*', ''),
+            (r',\s*stroke_width=[^,)]*', ''),
+            (r',\s*add_brackets=[^,)]*', ''),
+            (r',\s*add_row_indices=[^,)]*', ''),
+        ]
+        
+        import re
+        for pattern, replacement in fixes:
+            script = re.sub(pattern, replacement, script)
+        
+        return script
+    
     async def generate_visualization_video(self, manim_script: str, scene_name: str = "Scene") -> Dict[str, Any]:
         """
         Generate a visualization video from a Manim script
@@ -59,6 +88,9 @@ class VisualizationTools:
             if 'from manim import' not in cleaned_script:
                 cleaned_script = f"from manim import *\n\n{cleaned_script}"
             
+            # Fix common errors in the script
+            cleaned_script = self._fix_common_manim_errors(cleaned_script)
+            
             # Write the Manim script to file
             with open(script_path, 'w', encoding='utf-8') as f:
                 f.write(cleaned_script)
@@ -76,7 +108,7 @@ class VisualizationTools:
             # Run Manim command asynchronously
             cmd = [
                 "manim",
-                "-pql",  # Preview, quality low for faster rendering
+                "-ql",  # Quality low for faster rendering (removed -p to prevent auto-opening)
                 os.path.basename(script_path),
                 scene_name,
                 "-o", video_filename

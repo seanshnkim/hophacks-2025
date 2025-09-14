@@ -33,7 +33,18 @@ def main():
             print(f"Main topic: {data['main_topic']}")
             print(f"Components: {data['components']}")
             print(f"Number of learning blocks: {len(data['learning_blocks'])}")
-            print(f"Playground cells: {len(data['playground'].get('cells', []))}")
+            print(f"Notebook path: {data['playground_path']}")
+            
+            # Test notebook endpoint
+            notebook_url = f"http://localhost:8000/notebook/{data['playground_path']}"
+            print(f"\n📓 Testing notebook endpoint: {notebook_url}")
+            
+            notebook_response = requests.get(notebook_url)
+            if notebook_response.status_code == 200:
+                notebook_data = notebook_response.json()
+                print(f"✅ Notebook endpoint working! ({len(notebook_data.get('cells', []))} cells)")
+            else:
+                print(f"❌ Notebook endpoint failed: {notebook_response.status_code}")
             
             # Display learning blocks
             print("\n📚 Learning Blocks:")

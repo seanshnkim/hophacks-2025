@@ -13,7 +13,7 @@ class Config:
     # LLM Configuration
     GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash-002")
     LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.7"))
-    LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "1000"))
+    LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "4000"))
     
     # App Configuration
     APP_NAME = os.getenv("APP_NAME", "HopHacks 2025 Learner App")
